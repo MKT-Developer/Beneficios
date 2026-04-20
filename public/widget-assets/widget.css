@@ -1,0 +1,540 @@
+/* =====================
+   BANNER
+===================== */
+.widget-banner {
+    height: 220px;
+    background-image: url('/widget-assets/assets/portada_desk.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right,
+            rgba(0, 0, 0, 0.65),
+            rgba(0, 0, 0, 0.2));
+    color: #fff;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.banner-overlay h1 {
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.banner-overlay p {
+    font-size: 15px;
+    max-width: 420px;
+}
+
+/* =====================
+   BANNER
+===================== */
+
+/* =====================
+   HEADER CONTENT
+===================== */
+.header-content {
+    text-align: center;
+    padding: 32px 20px;
+    background: #fff;
+}
+
+.header-content h2 {
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.header-content p {
+    font-size: 15px;
+    color: #555;
+    max-width: 520px;
+    margin: 0 auto 24px;
+}
+
+.header-info {
+    display: flex;
+    justify-content: space-around;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.header-info .info {
+    text-align: center;
+}
+
+.header-info h3 {
+    font-size: 45px;
+    margin-bottom: 4px;
+
+    background: linear-gradient(180deg, #0B5B43 0%, #95C23D 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* estándar (por compatibilidad futura) */
+    background-clip: text;
+    color: transparent;
+}
+
+.header-info p {
+    font-size: 13px;
+    color: #777;
+}
+
+/* =====================
+   HEADER CONTENT
+===================== */
+
+/* Reset simple */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.widget-container {
+    /* max-width: 1000px; */
+    margin: 0 auto;
+    padding: 15px;
+}
+
+/* =====================
+   Pilares
+===================== */
+.pilares-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    /* margin-bottom: 20px; */
+}
+
+.pilar-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.pilar-btn img {
+    width: 24px;
+    height: 24px;
+}
+
+.pilar-btn.active {
+    background-color: #024D25;
+    color: #fff;
+    border-color: #024D25;
+    box-shadow: 0 4px 12px rgba(2, 77, 37, 0.35);
+}
+
+/* =====================
+   BENEFICIOS GRID
+===================== */
+.beneficios-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    padding: 24px;
+
+    /* continuidad visual */
+    background: rgba(255, 255, 255, 0.60);
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    border-top: none;
+
+    border-radius: 0 0 16px 16px;
+}
+
+/* =====================
+   CARD
+===================== */
+.beneficio-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/* .beneficio-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+} */
+
+.beneficio-card:hover .card-header {
+    background-color: #024D25;
+    filter: brightness(1.1);
+    transition: all 0.2s ease;
+}
+
+.card-header {
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*background: #f7f7f7;*/
+    background: #024D25;
+}
+
+.card-header img {
+    max-height: 50px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.card-body {
+    padding: 16px;
+    flex: 1;
+}
+
+.card-body h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.card-body .descripcion {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 8px;
+    line-height: 1.45;
+}
+
+.card-body .condiciones {
+    font-size: 12px;
+    color: #777;
+    margin-top: 6px;
+    font-style: italic;
+}
+
+.card-footer {
+    padding: 12px 16px;
+    background: #fafafa;
+    border-top: 1px solid #eee;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+
+/* Contenedor de selector de país + pilares */
+.top-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+/* =====================
+   PAIS
+===================== */
+.pais-selector {
+    position: relative;
+    width: 220px;
+    font-family: inherit;
+    border: 1px solid hsl(0deg 0% 50% / 50%);
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.pais-dropdown-toggle.open .pais-arrow {
+    transform: rotate(180deg);
+}
+
+
+/* =========================
+   TOGGLE (país seleccionado)
+========================= */
+.pais-dropdown-toggle {
+    width: 100%;
+    padding: 6px 8px;
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+    box-shadow: none;
+    outline: none;
+}
+
+/* Hover sutil, sin fondo feo */
+.pais-dropdown-toggle:hover {
+    opacity: 0.85;
+}
+
+.pais-arrow {
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+/* =========================
+   DROPDOWN LIST
+========================= */
+.pais-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 8px;
+    list-style: none;
+    padding: 6px 0;
+    margin: 0;
+    display: none;
+    z-index: 50;
+    max-height: 240px;
+    overflow-y: auto;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.pais-dropdown li {
+    margin: 0;
+}
+
+/* =========================
+   OPCIONES
+========================= */
+.pais-option {
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 14px;
+
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.pais-option:hover {
+    background-color: #f4f4f4;
+}
+
+.pais-option.active {
+    background-color: #e6f0ea;
+    font-weight: 600;
+}
+
+::selection {
+    background: #55882B;
+    color: #fff;
+}
+
+/* =========================
+   CONTENIDO
+========================= */
+.pais-selected {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pais-flag {
+    width: 22px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.pais-name {
+    font-size: 14px;
+}
+
+/* =====================
+   PAIS
+===================== */
+
+/* Pilar activo info */
+.pilar-info {
+    margin: 15px 0 0 0;
+    padding: 12px 16px;
+
+    /* apariencia unificada */
+    background: rgba(255, 255, 255, 0.60);
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    border-bottom: none;
+
+    border-radius: 16px 16px 0 0;
+
+    /* divisor interno */
+    border-bottom: 1px solid rgba(229, 231, 235, 0.50);
+}
+
+.pilar-info h2 {
+    font-size: 18px;
+    margin-bottom: 6px;
+    font-weight: 400;
+    line-height: 40px;
+}
+
+.pilar-info p {
+    font-size: 14px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pilar-info img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* =====================
+   CONTACTO BENEFICIO
+===================== */
+.contacto {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: #444;
+}
+
+.contacto div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.contacto div:hover {
+    color: #55882B;
+}
+
+/* Iconos simples con pseudo-elementos */
+.card_redsocial::before {
+    content: "🔗";
+}
+
+.card_sitio::before {
+    content: "🌐";
+}
+
+.card_telefono::before {
+    content: "📞";
+}
+
+.card_correo::before {
+    content: "✉️";
+}
+
+
+/* =====================
+   UBICACIONES / CHIPS
+===================== */
+.card_paises {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.card_paises .chip {
+    background-color: #eef6f0;
+    color: #024D25;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.card_paises .chip:hover {
+    background-color: #55882B;
+    color: #fff;
+}
+
+/* =====================
+   ANIMACIONES
+===================== */
+.beneficio-card {
+    animation: fadeUp 0.35s ease both;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg,
+            #eee 25%,
+            #f5f5f5 37%,
+            #eee 63%);
+    background-size: 400% 100%;
+    animation: skeleton 1.4s ease infinite;
+}
+
+@keyframes skeleton {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
+}
+
+/* =====================
+   ANIMACIONES
+===================== */
+
+
+@media (max-width: 600px) {
+    .beneficios-container {
+        padding: 12px;
+        grid-template-columns: 1fr;
+    }
+
+    .header-info {
+        gap: 16px;
+    }
+
+    .banner-overlay {
+        padding: 20px;
+    }
+
+    .banner-overlay h1 {
+        font-size: 22px;
+    }
+}
