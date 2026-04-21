@@ -248,6 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
         startX = e.touches[0].clientX;
         currentX = startX;
         isDragging = true;
+
     });
 
     document.addEventListener("touchmove", (e) => {
@@ -261,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const diff = currentX - startX;
 
-        // 🔥 ignorar micro-movimientos
+        // Ignorar micro-movimientos
         if (Math.abs(diff) < 60) {
             isDragging = false;
             return;
@@ -476,4 +477,274 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
+    /* =========================
+    FILTROS
+========================= */
+
+    let timeout = null;
+    let sortableInstance = null;
+    let controller = null;
+
+    function hasFilters() {
+        return (
+            document.getElementById('search').value ||
+            document.getElementById('filter-pais').value ||
+            document.getElementById('filter-pilar').value
+        );
+    }
+
+    function initSortable() {
+        const el = document.getElementById('table-body');
+        if (!el) return;
+
+        if (sortableInstance && sortableInstance.el && document.body.contains(sortableInstance.el)) {
+            sortableInstance.destroy();
+        }
+
+        if (hasFilters()) return;
+
+        sortableInstance = new Sortable(el, {
+            animation: 150,
+            ghostClass: 'dragging',
+            chosenClass: 'drag-chosen',
+            onEnd: function () {
+                let order = [];
+
+                document.querySelectorAll('#table-body tr').forEach((row, index) => {
+                    if (!row.dataset.id) return;
+
+                    order.push({
+                        id: row.dataset.id,
+                        orden: index + 1
+                    });
+                });
+
+                fetch('/admin/beneficios/reordenar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ order })
+                });
+            }
+        });
+    }
+
+    /* =========================
+        FETCH BENEFICIOS (FIXED)
+    ========================= */
+
+    function fetchBeneficios() {
+
+        if (controller) controller.abort();
+        controller = new AbortController();
+
+        const search = document.getElementById('search').value;
+        const pais = document.getElementById('filter-pais').value;
+        const pilar = document.getElementById('filter-pilar').value;
+
+        const params = new URLSearchParams({ search, pais, pilar });
+
+        const table = document.getElementById('table-body');
+
+        // UI loading state
+        showTableLoader();
+
+        if (table) {
+            table.style.opacity = "0.5";
+            table.style.pointerEvents = "none";
+        }
+
+        if (sortableInstance) {
+            try { sortableInstance.destroy(); } catch (e) { }
+            sortableInstance = null;
+        }
+
+        fetch(`/admin/beneficios?${params.toString()}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            signal: controller.signal
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Server error');
+                return res.json();
+            })
+            .then(data => {
+
+                if (table) table.innerHTML = data.html;
+
+                const counter = document.getElementById('beneficios-counter');
+                if (counter) {
+                    counter.innerHTML = `Mostrando <strong>${data.count}</strong> beneficios`;
+                }
+
+                initSortable();
+
+            })
+            .catch(err => {
+
+                if (err.name === 'AbortError') return;
+
+                console.error(err);
+            })
+            .finally(() => {
+
+                // SIEMPRE limpiar UI
+                hideTableLoader();
+
+                if (table) {
+                    table.style.opacity = "1";
+                    table.style.pointerEvents = "auto";
+                }
+            });
+    }
+
+    /* =========================
+        EVENTOS FILTROS
+    ========================= */
+
+    document.getElementById('search').addEventListener('keyup', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(fetchBeneficios, 300);
+    });
+
+    window.resetFilters = function () {
+        document.getElementById('search').value = '';
+        document.getElementById('filter-pais').value = '';
+        document.getElementById('filter-pilar').value = '';
+        fetchBeneficios();
+    };
+
+    document.getElementById('filter-pais').addEventListener('change', fetchBeneficios);
+    document.getElementById('filter-pilar').addEventListener('change', fetchBeneficios);
+
+    initSortable();
+
+    /* =========================
+        LOADER TABLE
+    ========================= */
+
+    function showTableLoader() {
+        document.getElementById('table-loader')?.classList.add('active');
+    }
+
+    function hideTableLoader() {
+        document.getElementById('table-loader')?.classList.remove('active');
+    }
+
+    /* =========================
+        PREVIEW BENEFICIO
+    ========================= */
+
+    function previewBeneficio(id) {
+
+        const modal = document.getElementById('beneficio-modal');
+
+        if (modal.dataset.loading === "true") return;
+        modal.dataset.loading = "true";
+
+        showLoader();
+
+        fetch(`/admin/beneficios/${id}`)
+            .then(res => res.json())
+            .then(data => {
+
+                const logo = document.getElementById('mb-logo');
+                if (logo) {
+                    logo.src = data.logo
+                        ? `/storage/beneficios/${data.logo}`
+                        : '/admin-assets/images/default.png';
+                }
+
+                document.getElementById('mb-pilar').innerHTML =
+                    `<strong>Pilar:</strong> ${data.pilar ?? '—'}`;
+
+                document.getElementById('mb-pais').innerHTML =
+                    `<strong>País:</strong> ${data.pais ?? '—'}`;
+
+                document.getElementById('mb-descripcion').innerHTML =
+                    `<strong>Descripción:</strong> ${truncateText(data.descripcion)}`;
+
+                document.getElementById('mb-condiciones').innerHTML =
+                    `<strong>Condiciones:</strong> ${truncateText(data.condiciones)}`;
+
+                document.getElementById('mb-email').innerHTML =
+                    `<strong>Email:</strong> ${data.correo ?? '—'}`;
+
+                document.getElementById('mb-telefono').innerHTML =
+                    `<strong>Teléfono:</strong> ${data.telefono ?? '—'}`;
+
+                document.getElementById('mb-sitio').innerHTML =
+                    `<strong>Sitio:</strong> ${data.sitio ?? '—'}`;
+
+                document.getElementById('mb-activo').innerHTML =
+                    `<strong>Estado:</strong> ${renderEstado(data.activo)}`;
+
+                document.getElementById('mb-ubicaciones').innerHTML =
+                    `<strong>Ubicaciones:</strong> ${renderUbicaciones(data.ubicaciones)}`;
+
+                document.getElementById('modal-edit').href =
+                    `/admin/beneficios/${id}/edit`;
+
+                modal.classList.remove('hidden');
+            })
+            .finally(() => {
+                modal.dataset.loading = "false";
+            });
+    }
+
+    /* =========================
+        HELPERS MODAL
+    ========================= */
+
+    function renderEstado(activo) {
+        return activo
+            ? `<span class="badge badge-success">Activo</span>`
+            : `<span class="badge badge-warning">Inactivo</span>`;
+    }
+
+    function truncateText(text, limit = 120) {
+        if (!text) return '—';
+
+        if (text.length <= limit) return `<span>${text}</span>`;
+
+        const short = text.slice(0, limit);
+
+        return `
+        <span class="text-truncated">${short}...</span>
+        <span class="text-full hidden">${text}</span>
+        <button class="btn-link" onclick="toggleText(this)">Ver más</button>
+    `;
+    }
+
+    window.toggleText = function (btn) {
+        const container = btn.parentElement;
+        container.querySelector('.text-truncated').classList.toggle('hidden');
+        container.querySelector('.text-full').classList.toggle('hidden');
+
+        btn.innerText = btn.innerText === 'Ver más' ? 'Ver menos' : 'Ver más';
+    };
+
+    function renderUbicaciones(ubicaciones) {
+        if (!ubicaciones || ubicaciones.length === 0) return '—';
+
+        return `<ul class="modal-list">
+        ${ubicaciones.map(u => `<li>${u}</li>`).join('')}
+    </ul>`;
+    }
+
+    /* =========================
+        MODAL CLOSE OUTSIDE
+    ========================= */
+
+    document.getElementById('beneficio-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'beneficio-modal') closeModal();
+    });
+
+    function closeModal() {
+        document.getElementById('beneficio-modal').classList.add('hidden');
+    }
+
+    window.previewBeneficio = previewBeneficio;
+    window.closeModal = closeModal;
 });

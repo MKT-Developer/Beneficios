@@ -384,9 +384,11 @@ textarea {
 }
 
 .image-preview img {
-    max-width: 80px;
+    max-width: 120px;
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #000000;
+    background-color: black;
+    padding: 10px;
 }
 
 /* =========================
@@ -461,6 +463,9 @@ textarea {
     border-radius: 6px;
     font-size: 12px;
     border: none;
+
+    display: inline-block;
+    font-weight: 500;
 }
 
 .badge-success {
@@ -496,6 +501,18 @@ textarea {
     line-height: 32px;
     /* border-radius: 50%; */
 }
+
+/* =========================
+   LOADER EN TABLA
+========================= */
+.table-wrapper {
+    position: relative;
+}
+
+.table-wrapper #table-body {
+    transition: opacity .25s ease;
+}
+
 
 /* =========================
    ADMIN PANEL
@@ -722,9 +739,68 @@ textarea {
     align-items: center;
 }
 
-/* USER DROPDOWN */
 /* =========================
-   USER DROPDOWN (OPTIMIZADO)
+   BENEFICIOS - CELDAS
+========================= */
+
+.beneficio-title {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.beneficio-meta {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin-top: 2px;
+}
+
+.cell-flex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-sm {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+.pais-icon-fallback {
+    font-size: 18px;
+    opacity: 0.7;
+}
+
+.link-primary {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link-primary:hover {
+    text-decoration: underline;
+}
+
+/* EMPTY STATE (reutilizable) */
+.empty-state {
+    text-align: center;
+    padding: 20px;
+}
+
+.empty-state-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.empty-icon {
+    font-size: 26px;
+    opacity: 0.25;
+}
+
+/* =========================
+   USER DROPDOWN
 ========================= */
 
 .admin-user {
@@ -1182,6 +1258,10 @@ textarea {
     }
 }
 
+/* =========================
+   MODAL BASE
+========================= */
+
 .modal {
     position: fixed;
     inset: 0;
@@ -1190,19 +1270,40 @@ textarea {
     align-items: center;
     justify-content: center;
     z-index: 9999;
+
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
 }
 
 .modal.hidden {
     display: none;
 }
 
+/* estado visible */
+.modal:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =========================
+   MODAL CONTENT
+========================= */
+
 .modal-content {
     background: #fff;
     padding: 20px;
-    border-radius: 12px;
-    max-width: 420px;
-    width: 90%;
     animation: pop .2s ease;
+    border-radius: 14px;
+
+    width: 100%;
+    max-width: 700px;
+    max-height: 85vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 @keyframes pop {
@@ -1217,11 +1318,206 @@ textarea {
     }
 }
 
+/* =========================
+   HEADER
+========================= */
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 18px 20px;
+    border-bottom: 1px solid #eee;
+
+    background: #fafafa;
+    justify-content: center;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    margin: 0;
+    font-weight: 600;
+    color: #222;
+}
+
+.modal-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    background: var(--color-primary);
+}
+
+/* =========================
+   BODY
+========================= */
+
+#modal-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* secciones */
+.modal-section {
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.modal-section:last-child {
+    border-bottom: none;
+}
+
+.modal-section h4 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+
+    color: var(--color-secondary);
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+/* textos */
+.modal-section p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+}
+
+/* labels fuertes */
+.modal-section p strong {
+    color: #111;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
     margin-top: 16px;
+
+    padding: 14px 20px;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: 13px;
+    margin-left: 5px;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+/* oculto */
+.hidden {
+    display: none;
+}
+
+/* lista */
+.modal-list {
+    margin-top: 6px;
+    padding-left: 18px;
+}
+
+.modal-list li {
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 600px) {
+    .modal-content {
+        max-width: 95%;
+        max-height: 90vh;
+        border-radius: 10px;
+    }
+
+    .modal-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* =========================
+   FILTROS
+========================= */
+
+.dragging {
+    opacity: 0.5;
+    background: #f3f4f6;
+}
+
+.drag-chosen {
+    background: #e0f2fe;
+}
+
+.beneficios-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+
+.table-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    /* padding: 12px 0; */
+    align-items: center;
+
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    /* margin: 10px 0; */
+}
+
+.table-toolbar .filter-control {
+    width: auto !important;
+    /* rompe el 100% global */
+    min-width: 180px;
+    max-width: 240px;
+
+    padding: 8px 10px;
+    font-size: 13px;
+
+    border-radius: 8px;
+    /* border: 1px solid #d1d5db; */
+
+    background: #fff;
+}
+
+#beneficios-counter {
+    align-self: flex-end;
+    background: #f3f4f6;
+    padding: 6px 10px;
+    border-radius: 8px;
+    display: inline-block;
+    font-weight: 500;
+
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+
+    font-variant-numeric: tabular-nums;
 }
 
 /* =========================
@@ -1297,7 +1593,7 @@ textarea {
         display: none;
 
     }
-    
+
     /* Bandera */
     .table-pilares th:nth-child(1),
     .table-pilares td:nth-child(1) {
@@ -1309,11 +1605,15 @@ textarea {
     .table-pilares td:nth-child(3) {
         display: none;
 
-    }.table-pilares th:nth-child(4),
+    }
+
+    .table-pilares th:nth-child(4),
     .table-pilares td:nth-child(4) {
         display: none;
 
-    }.table-pilares th:nth-child(5),
+    }
+
+    .table-pilares th:nth-child(5),
     .table-pilares td:nth-child(5) {
         display: none;
 
@@ -1388,4 +1688,31 @@ textarea {
         padding: 6px 10px;
         font-size: 11px;
     } */
+
+    /* ocultar ID
+    .table-beneficios td:nth-child(1),
+    .table-beneficios th:nth-child(1) {
+        display: none;
+    } */
+
+    /* ocultar Pilar */
+    .table-beneficios td:nth-child(2),
+    .table-beneficios th:nth-child(2) {
+        display: none;
+    }
+
+    /* ocultar País */
+    .table-beneficios td:nth-child(3),
+    .table-beneficios th:nth-child(3) {
+        display: none;
+    }
+
+    /* asegurar layout limpio */
+    .table-beneficios tr {
+        gap: 12px;
+    }
+
+    .hide-mobile {
+        display: none !important;
+    }
 }

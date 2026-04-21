@@ -112,7 +112,7 @@
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit">Cerrar sesión</button>
-                                 <!-- <button type="submit" class="logout-btn">Cerrar sesión</button> -->
+                                <!-- <button type="submit" class="logout-btn">Cerrar sesión</button> -->
                             </form>
                         </div>
 
@@ -147,6 +147,54 @@
         </div>
     </div>
 
+    <div id="beneficio-modal" class="modal hidden" data-loading="false">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <img id="mb-logo" class="modal-logo" src="" alt="">
+                <h3 id="modal-title"></h3>
+            </div>
+
+            <div id="modal-body">
+
+                <!-- GENERAL -->
+                <div class="modal-section">
+                    <h4>Información general</h4>
+                    <p id="mb-pilar"></p>
+                    <p id="mb-pais"></p>
+                </div>
+
+                <!-- DETALLE -->
+                <div class="modal-section">
+                    <h4>Detalle</h4>
+                    <p id="mb-descripcion"></p>
+                    <p id="mb-condiciones"></p>
+                </div>
+
+                <!-- CONTACTO -->
+                <div class="modal-section">
+                    <h4>Contacto</h4>
+                    <p id="mb-email"></p>
+                    <p id="mb-telefono"></p>
+                    <p id="mb-sitio"></p>
+                </div>
+
+                <!-- OPERATIVO -->
+                <div class="modal-section">
+                    <h4>Operativo</h4>
+                    <p id="mb-activo"></p>
+                    <p id="mb-ubicaciones"></p>
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cerrar</button>
+                <a id="modal-edit" class="btn btn-sm btn-warning">Editar</a>
+            </div>
+
+        </div>
+    </div>
 
     <!-- SCRIPTS
     <script>

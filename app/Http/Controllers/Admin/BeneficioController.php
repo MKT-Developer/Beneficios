@@ -13,13 +13,39 @@ class BeneficioController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $beneficios = Beneficio::with(['pilar.pais', 'ubicaciones'])
-            ->orderBy('orden')
-            ->get();
+        $query = Beneficio::with(['pilar.pais', 'ubicaciones']);
 
-        return view('admin.beneficios.index', compact('beneficios'));
+        if ($request->search) {
+            $query->where('nombre', 'like', "%{$request->search}%");
+        }
+
+        if ($request->pais) {
+            $query->whereHas('pilar.pais', function ($q) use ($request) {
+                $q->where('id', $request->pais);
+            });
+        }
+
+        if ($request->pilar) {
+            $query->where('pilar_id', $request->pilar);
+        }
+
+        $beneficios = $query->orderBy('orden')->get();
+
+        // IMPORTANTE
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.beneficios.partials.table', compact('beneficios'))->render(),
+                'count' => $beneficios->count()
+            ]);
+        }
+
+        return view('admin.beneficios.index', [
+            'beneficios' => $beneficios,
+            'paises' => \App\Models\Pais::all(),
+            'pilares' => \App\Models\Pilar::all()
+        ]);
     }
 
     /**
@@ -159,5 +185,43 @@ class BeneficioController extends Controller
         $data['orden'] = $data['orden'] ?? 0;
 
         return $data;
+    }
+
+    /**
+     * Mostrar los datos en el modal.
+     */
+    public function show(Beneficio $beneficio)
+    {
+        $beneficio->load(['pilar.pais', 'ubicaciones']);
+
+        return response()->json([
+            'id' => $beneficio->id,
+            'nombre' => $beneficio->nombre,
+            'logo' => $beneficio->logo,
+
+            // GENERAL
+            'pilar' => $beneficio->pilar?->nombre,
+            'pais' => $beneficio->pilar?->pais?->nombre,
+
+            // DETALLE
+            'descripcion' => $beneficio->descripcion,
+            'condiciones' => $beneficio->condiciones,
+
+            // CONTACTO
+            'correo' => $beneficio->correo,
+            'telefono' => $beneficio->telefono,
+            'sitio' => $beneficio->sitio,
+            'redsocial' => $beneficio->redsocial,
+
+            // OPERATIVO
+            'ubicaciones' => $beneficio->ubicaciones->pluck('nombre'),
+            // 'ubicaciones' => $beneficio->ubicaciones
+            //     ->pluck('nombre')
+            //     ->take(5)
+            //     ->implode(', ') ?: 'Sin ubicaciones',
+
+            'activo' => $beneficio->activo,
+            'orden' => $beneficio->orden,
+        ]);
     }
 }

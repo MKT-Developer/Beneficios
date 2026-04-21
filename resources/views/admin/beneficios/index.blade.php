@@ -3,172 +3,105 @@
 @section('title', 'Beneficios')
 
 @section('content')
-<div class="container">
+
+<div class="admin-page">
 
     <div class="header-actions">
-        <h1>Beneficios</h1>
+        <h2 class="text-xl font-bold">Beneficios</h2>
         <a href="{{ route('admin.beneficios.create') }}" class="btn btn-primary">
             + Nuevo beneficio
         </a>
     </div>
 
+    {{-- TOASTS --}}
     @if(session('success'))
-    <div class="alert-success">
-        {{ session('success') }}
-    </div>
+    <div data-toast="success" data-message="{{ session('success') }}"></div>
+    @endif
+
+    @if(session('error'))
+    <div data-toast="error" data-message="{{ session('error') }}"></div>
+    @endif
+
+    @if ($errors->any())
+    @foreach ($errors->all() as $error)
+    <div data-toast="error" data-message="{{ $error }}"></div>
+    @endforeach
     @endif
 
     <div class="card">
         <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Logo</th>
-                        <th>Beneficio</th>
-                        <th>Pilar</th>
-                        <th>País</th>
-                        <th>Ubicaciones</th>
-                        <th>Orden</th>
-                        <th>Activo</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
 
-                <tbody>
-                    @forelse($beneficios as $beneficio)
-                    <tr>
-                        {{-- ID --}}
-                        <td>{{ $beneficio->id }}</td>
+            <div class="beneficios-controls">
 
-                        {{-- LOGO --}}
-                        <td>
-                            @if($beneficio->logo)
-                            <img src="{{ asset('storage/beneficios/' . $beneficio->logo) }}"
-                                style="width:32px; height:32px; object-fit:contain;">
-                            @endif
-                        </td>
+                <div class="table-toolbar">
 
+                    {{-- Buscador --}}
+                    <input type="text"
+                        id="search"
+                        placeholder="Buscar beneficio..."
+                        class="input filter-control">
 
-                        {{-- Beneficio --}}
-                        <td>
-                            <a href="{{ route('admin.beneficios.edit', $beneficio) }}"
-                                style="font-weight:600; color:#111827; text-decoration:none;">
-                                {{ $beneficio->nombre }}
-                            </a>
-                        </td>
+                    {{-- Filtro por país --}}
+                    <select id="filter-pais" class="select filter-control">
+                        <option value="">Todos los países</option>
+                        @foreach($paises as $pais)
+                        <option value="{{ $pais->id }}">{{ $pais->nombre }}</option>
+                        @endforeach
+                    </select>
 
-                        {{-- Pilar --}}
-                        <td>
-                            @if($beneficio->pilar)
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                @if($beneficio->pilar->icono)
-                                <img src="{{ asset('storage/pilares/' . $beneficio->pilar->icono) }}"
-                                    style="width:24px; height:24px; object-fit:contain;">
-                                @endif
+                    {{-- Filtro por pilar --}}
+                    <select id="filter-pilar" class="select filter-control">
+                        <option value="">Todos los pilares</option>
+                        @foreach($pilares as $pilar)
+                        <option value="{{ $pilar->id }}">{{ $pilar->nombre }}</option>
+                        @endforeach
+                    </select>
 
-                                <a href="{{ route('admin.pilares.edit', $beneficio->pilar) }}"
-                                    style="color:#0d6efd; text-decoration:none;">
-                                    {{ $beneficio->pilar->nombre }}
-                                </a>
-                            </div>
-                            @else
-                            <span class="text-muted">—</span>
-                            @endif
-                        </td>
+                    {{-- Reset --}}
+                    <button onclick="resetFilters()" class="btn btn-sm btn-light">
+                        Limpiar
+                    </button>
 
-                        {{-- País --}}
-                        <td>
-                            @if($beneficio->pilar && $beneficio->pilar->pais)
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                @if($beneficio->pilar->pais->flag)
-                                <img src="{{ asset($beneficio->pilar->pais->flag) }}"
-                                    style="width:24px; height:16px; border-radius:4px;">
-                                @else
-                                <span class="pais-icon">🌍</span>
-                                @endif
+                </div>
 
-                                <a href="{{ route('admin.pais.edit', $beneficio->pilar->pais) }}"
-                                    style="color:#0d6efd; text-decoration:none;">
-                                    {{ $beneficio->pilar->pais->nombre }}
-                                </a>
-                            </div>
-                            @else
-                            <span class="text-muted">—</span>
-                            @endif
-                        </td>
+                <div id="beneficios-counter">
+                    Mostrando <strong>{{ $beneficios->count() }}</strong> beneficios
+                </div>
+            </div>
 
-                        {{-- Ubicaciones --}}
-                        <td>
-                            @if($beneficio->ubicaciones->count() === 0)
-                            <span class="text-muted">Todas</span>
+            <div class="table-wrapper">
 
-                            @elseif($beneficio->ubicaciones->count() <= 2)
-                                {{ $beneficio->ubicaciones->pluck('nombre')->join(', ') }}
+                <!-- LOADER -->
+                <div id="table-loader" class="global-loader">
+                    <div class="loader-spinner"></div>
+                </div>
 
-                                @else
-                                {{ $beneficio->ubicaciones->count() }} ubicaciones
-                                @endif
-                                </td>
+                <table class="table table-beneficios table-beneficios-responsive">
+                    <thead>
+                        <tr>
+                            <th>Beneficio</th>
+                            <th>Pilar</th>
+                            <th>País</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
 
-                                {{-- Orden --}}
-                        <td class="text-center">
-                            {{ $beneficio->orden ?? '—' }}
-                        </td>
+                    <tbody id="table-body">
+                        @include('admin.beneficios.partials.table', ['beneficios' => $beneficios])
+                    </tbody>
+                </table>
 
-                        {{-- Activo --}}
-                        <td class="text-center">
-                            <span class="badge" style="background-color: {{ $beneficio->activo ? '#10b981' : '#f87171' }}; color:#fff;">
-                                {{ $beneficio->activo ? 'Activo' : 'Inactivo' }}
-                            </span>
-                        </td>
-
-                        {{-- Acciones --}}
-                        <td class="text-center">
-                            <div class="action-buttons">
-                                <button class="badge {{ $beneficio->activo ? 'badge-success' : 'badge-danger' }}"
-                                    onclick="toggleActivo(this, {{ $beneficio->id }})"
-                                    data-model="beneficio">
-                                    {{ $beneficio->activo ? 'Activo' : 'Inactivo' }}
-                                </button
-
-                                    <form action="{{ route('admin.beneficios.destroy', $beneficio) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('¿Eliminar este beneficio?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger">
-                                    Eliminar
-                                </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="text-center text-muted">
-                            No hay beneficios registrados
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+            </div>
         </div>
     </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <script>
     window.toggleModel = "beneficio";
 </script>
 
 @endsection
-
-<!-- 
-** MEJORES PENDIENTES **
-- Preview completo del beneficio
-- Filtrar por país/pilar
-- Grad y drip para ordenar beneficios
-- Toggle activo sin recargar
-- Contador de beneficios por pilar 
--->
