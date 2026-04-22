@@ -14,6 +14,7 @@ class Beneficio extends Model
         'pilar_id',
         'nombre',
         'descripcion',
+        'beneficios',
         'condiciones',
         'redsocial',
         'sitio',

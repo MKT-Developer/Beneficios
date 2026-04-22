@@ -166,6 +166,7 @@ class BeneficioController extends Controller
             'pilar_id'      => 'required|exists:pilares,id',
             'nombre'        => "required|string|max:255|unique:beneficios,nombre,$beneficioId,id",
             'descripcion'   => 'required|string',
+            'beneficios'   => 'nullable|string',
             'condiciones'   => 'nullable|string',
             'redsocial'     => 'nullable|string|max:255',
             'sitio'         => 'nullable|url|max:255',
@@ -205,6 +206,7 @@ class BeneficioController extends Controller
 
             // DETALLE
             'descripcion' => $beneficio->descripcion,
+            'beneficios' => $beneficio->beneficios,
             'condiciones' => $beneficio->condiciones,
 
             // CONTACTO

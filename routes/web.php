@@ -157,9 +157,12 @@ Route::middleware(['auth', 'admin'])
         Route::resource('ubicaciones', UbicacionController::class)
             ->parameters(['ubicaciones' => 'ubicacion']);
 
-
         Route::patch('/toggle/{model}/{id}', ToggleController::class)
             ->name('admin.toggle');
+
+        Route::get('widget', function () {
+            return view('admin.widget.index');
+        })->name('widget.index');
     });
 
 /*

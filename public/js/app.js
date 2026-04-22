@@ -393,9 +393,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (title) title.textContent = `Eliminar ${label}`;
         // if (text) text.textContent = `¿Estás seguro de que deseas eliminar este registro de tipo ${label}?`;
         if (text) text.textContent = `¿Estás seguro de que deseas eliminar este elemento?`;
-        
 
-            modal?.classList.remove("hidden");
+
+        modal?.classList.remove("hidden");
     };
 
     window.closeDeleteModal = function () {
@@ -510,10 +510,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let controller = null;
 
     function hasFilters() {
+        const search = document.getElementById('search');
+        const pais = document.getElementById('filter-pais');
+        const pilar = document.getElementById('filter-pilar');
+
         return (
-            document.getElementById('search').value ||
-            document.getElementById('filter-pais').value ||
-            document.getElementById('filter-pilar').value
+            (search && search.value) ||
+            (pais && pais.value) ||
+            (pilar && pilar.value)
         );
     }
 
@@ -627,10 +631,14 @@ document.addEventListener("DOMContentLoaded", () => {
         EVENTOS FILTROS
     ========================= */
 
-    document.getElementById('search').addEventListener('keyup', () => {
-        clearTimeout(timeout);
-        timeout = setTimeout(fetchBeneficios, 300);
-    });
+    const searchInput = document.getElementById('search');
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(fetchBeneficios, 300);
+        });
+    }
 
     window.resetFilters = function () {
         document.getElementById('search').value = '';
@@ -639,8 +647,16 @@ document.addEventListener("DOMContentLoaded", () => {
         fetchBeneficios();
     };
 
-    document.getElementById('filter-pais').addEventListener('change', fetchBeneficios);
-    document.getElementById('filter-pilar').addEventListener('change', fetchBeneficios);
+    const filterPais = document.getElementById('filter-pais');
+    const filterPilar = document.getElementById('filter-pilar');
+
+    if (filterPais) {
+        filterPais.addEventListener('change', fetchBeneficios);
+    }
+
+    if (filterPilar) {
+        filterPilar.addEventListener('change', fetchBeneficios);
+    }
 
     initSortable();
 

@@ -21,11 +21,17 @@ class AllowIframe
         // Eliminar X-Frame-Options
         $response->headers->remove('X-Frame-Options');
 
-        // O permitir desde cualquier dominio
+        //Sitios en especificos
         $response->headers->set(
             'Content-Security-Policy',
-            "frame-ancestors *"
+            "frame-ancestors 'self' https://beneficios.meracorporation.com/ https://mera.supercompany.com/ http://127.0.0.1:8000/"
         );
+
+        // O permitir desde cualquier dominio
+        // $response->headers->set(
+        //     'Content-Security-Policy',
+        //     "frame-ancestors *"
+        // );
 
         return $response;
 

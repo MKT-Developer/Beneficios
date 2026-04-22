@@ -58,7 +58,7 @@
                             </td>
 
                             <td class="text-center">
-                                <span class="badge {{ $pais->activo ? 'badge-success' : 'badge-danger' }}>
+                                <span class="badge {{ $ubicacion->activo ? 'badge-success' : 'badge-danger' }}">
                                     {{ $ubicacion->activo ? 'Activo' : 'Inactivo' }}
                                 </span>
                             </td>

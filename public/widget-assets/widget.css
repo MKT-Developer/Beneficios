@@ -1,9 +1,29 @@
+/* Reset simple */
+:root {
+    --primary: #024D25;
+    --primary-light: #55882B;
+    --text: #333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+::selection {
+    background: #55882B;
+    color: #fff;
+}
+
 /* =====================
    BANNER
 ===================== */
 .widget-banner {
     height: 220px;
-    background-image: url('/widget-assets/assets/portada_desk.png');
+    background-image: url('../widget-assets/assets/portada_desk.png');
+    /* corregido: ruta relativa consistente */
     background-size: cover;
     background-position: center;
     position: relative;
@@ -31,10 +51,6 @@
     font-size: 15px;
     max-width: 420px;
 }
-
-/* =====================
-   BANNER
-===================== */
 
 /* =====================
    HEADER CONTENT
@@ -71,12 +87,9 @@
 .header-info h3 {
     font-size: 45px;
     margin-bottom: 4px;
-
     background: linear-gradient(180deg, #0B5B43 0%, #95C23D 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-
-    /* estándar (por compatibilidad futura) */
     background-clip: text;
     color: transparent;
 }
@@ -87,31 +100,141 @@
 }
 
 /* =====================
-   HEADER CONTENT
+   WIDGET CONTAINER
 ===================== */
-
-/* Reset simple */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
-
 .widget-container {
-    /* max-width: 1000px; */
     margin: 0 auto;
     padding: 15px;
 }
 
 /* =====================
-   Pilares
+   CONTROLES SUPERIORES
+===================== */
+.top-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+/* =====================
+   SELECTOR DE PAÍS
+===================== */
+.pais-selector {
+    position: relative;
+    width: 220px;
+    font-family: inherit;
+    border: 1px solid hsl(0deg 0% 50% / 50%);
+    border-radius: 10px;
+    padding: 5px;
+    flex-shrink: 0;
+    /* evita que se comprima en móvil */
+}
+
+.pais-dropdown-toggle {
+    width: 100%;
+    padding: 6px 8px;
+    background: transparent;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    box-shadow: none;
+    outline: none;
+}
+
+.pais-dropdown-toggle:hover {
+    opacity: 0.85;
+}
+
+.pais-arrow {
+    font-size: 11px;
+    margin-left: 6px;
+    display: inline-block;
+    /* necesario para que transform funcione */
+    transition: transform 0.2s ease;
+    /* animación suave de la flecha */
+}
+
+.pais-dropdown-toggle.open .pais-arrow {
+    transform: rotate(180deg);
+}
+
+.pais-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 8px;
+    list-style: none;
+    padding: 6px 0;
+    margin: 0;
+    display: none;
+    z-index: 50;
+    max-height: 240px;
+    overflow-y: auto;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.pais-dropdown li {
+    margin: 0;
+}
+
+.pais-option {
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.pais-option:hover {
+    background-color: #f4f4f4;
+}
+
+.pais-option.active {
+    background-color: #e6f0ea;
+    font-weight: 600;
+}
+
+.pais-selected {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pais-flag {
+    width: 22px;
+    height: 16px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.pais-name {
+    font-size: 14px;
+}
+
+/* =====================
+   PILARES
 ===================== */
 .pilares-container {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    /* margin-bottom: 20px; */
 }
 
 .pilar-btn {
@@ -140,249 +263,15 @@
 }
 
 /* =====================
-   BENEFICIOS GRID
+   INFO DE PILAR
 ===================== */
-.beneficios-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
-    padding: 24px;
-
-    /* continuidad visual */
-    background: rgba(255, 255, 255, 0.60);
-    border: 1px solid rgba(0, 0, 0, 0.10);
-    border-top: none;
-
-    border-radius: 0 0 16px 16px;
-}
-
-/* =====================
-   CARD
-===================== */
-.beneficio-card {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    display: flex;
-    flex-direction: column;
-    transition: transform .2s ease, box-shadow .2s ease;
-}
-
-/* .beneficio-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-} */
-
-.beneficio-card:hover .card-header {
-    background-color: #024D25;
-    filter: brightness(1.1);
-    transition: all 0.2s ease;
-}
-
-.card-header {
-    padding: 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /*background: #f7f7f7;*/
-    background: #024D25;
-}
-
-.card-header img {
-    max-height: 50px;
-    max-width: 100%;
-    object-fit: contain;
-}
-
-.card-body {
-    padding: 16px;
-    flex: 1;
-}
-
-.card-body h3 {
-    font-size: 17px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.card-body .descripcion {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 8px;
-    line-height: 1.45;
-}
-
-.card-body .condiciones {
-    font-size: 12px;
-    color: #777;
-    margin-top: 6px;
-    font-style: italic;
-}
-
-.card-footer {
-    padding: 12px 16px;
-    background: #fafafa;
-    border-top: 1px solid #eee;
-    font-size: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-
-/* Contenedor de selector de país + pilares */
-.top-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-}
-
-/* =====================
-   PAIS
-===================== */
-.pais-selector {
-    position: relative;
-    width: 220px;
-    font-family: inherit;
-    border: 1px solid hsl(0deg 0% 50% / 50%);
-    border-radius: 10px;
-    padding: 5px;
-}
-
-.pais-dropdown-toggle.open .pais-arrow {
-    transform: rotate(180deg);
-}
-
-
-/* =========================
-   TOGGLE (país seleccionado)
-========================= */
-.pais-dropdown-toggle {
-    width: 100%;
-    padding: 6px 8px;
-    background: transparent;
-    border: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-
-    appearance: none;
-    -webkit-appearance: none;
-    box-shadow: none;
-    outline: none;
-}
-
-/* Hover sutil, sin fondo feo */
-.pais-dropdown-toggle:hover {
-    opacity: 0.85;
-}
-
-.pais-arrow {
-    font-size: 11px;
-    margin-left: 6px;
-}
-
-/* =========================
-   DROPDOWN LIST
-========================= */
-.pais-dropdown {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    width: 100%;
-    background: #ffffff;
-    border-radius: 8px;
-    list-style: none;
-    padding: 6px 0;
-    margin: 0;
-    display: none;
-    z-index: 50;
-    max-height: 240px;
-    overflow-y: auto;
-
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.pais-dropdown li {
-    margin: 0;
-}
-
-/* =========================
-   OPCIONES
-========================= */
-.pais-option {
-    width: 100%;
-    padding: 8px 12px;
-    background: transparent;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    text-align: left;
-    font-family: inherit;
-    font-size: 14px;
-
-    appearance: none;
-    -webkit-appearance: none;
-}
-
-.pais-option:hover {
-    background-color: #f4f4f4;
-}
-
-.pais-option.active {
-    background-color: #e6f0ea;
-    font-weight: 600;
-}
-
-::selection {
-    background: #55882B;
-    color: #fff;
-}
-
-/* =========================
-   CONTENIDO
-========================= */
-.pais-selected {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.pais-flag {
-    width: 22px;
-    height: 16px;
-    object-fit: cover;
-    border-radius: 2px;
-    flex-shrink: 0;
-}
-
-.pais-name {
-    font-size: 14px;
-}
-
-/* =====================
-   PAIS
-===================== */
-
-/* Pilar activo info */
 .pilar-info {
     margin: 15px 0 0 0;
     padding: 12px 16px;
-
-    /* apariencia unificada */
     background: rgba(255, 255, 255, 0.60);
     border: 1px solid rgba(0, 0, 0, 0.10);
-    border-bottom: none;
-
     border-radius: 16px 16px 0 0;
-
-    /* divisor interno */
+    /* eliminada la declaración duplicada de border-bottom: none */
     border-bottom: 1px solid rgba(229, 231, 235, 0.50);
 }
 
@@ -408,46 +297,142 @@
 }
 
 /* =====================
-   CONTACTO BENEFICIO
+   GRID DE BENEFICIOS
 ===================== */
-.contacto {
-    margin-top: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 13px;
-    color: #444;
+.beneficios-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.60);
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
 }
 
-.contacto div {
+/* =====================
+   PLACEHOLDER (mensaje inicial / error)
+===================== */
+.beneficios-container .placeholder,
+.beneficios-container>p {
+    grid-column: 1 / -1;
+    /* ocupa todo el ancho del grid */
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+    padding: 24px 0;
+}
+
+/* =====================
+   CARD DE BENEFICIO
+===================== */
+.beneficio-card {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s ease, box-shadow .2s ease;
+    animation: fadeUp 0.35s ease both;
+    /* unificado aquí, eliminado el bloque duplicado */
+}
+
+/* Hover card más premium */
+.beneficio-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.beneficio-card:hover .card-header {
+    background-color: #024D25;
+    filter: brightness(1.1);
+    transition: all 0.2s ease;
+}
+
+.card-header {
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #024D25;
+}
+
+.card-header img {
+    max-height: 50px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.card-body {
+    padding: 16px;
+    flex: 1;
+
+    /* 👇 CLAVE */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%
+}
+
+.card-body h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.card-body .descripcion {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 8px;
+    line-height: 1.45;
+}
+
+.card-body .condiciones {
+    font-size: 12px;
+    color: #777;
+    margin-top: 6px;
+    font-style: italic;
+}
+
+/* =====================
+   CONTACTO EN CARD
+===================== */
+.contacto {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    /* margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+    color: #444; */
+}
+
+.contacto a {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #eef6f0;
     display: flex;
     align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: color 0.2s ease;
+    justify-content: center;
+    /* color: var(--primary); */
+    text-decoration: none;
+    transition: .2s;
+}
+
+.contacto a:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-2px);
 }
 
 .contacto div:hover {
     color: #55882B;
 }
-
-/* Iconos simples con pseudo-elementos */
-.card_redsocial::before {
-    content: "🔗";
-}
-
-.card_sitio::before {
-    content: "🌐";
-}
-
-.card_telefono::before {
-    content: "📞";
-}
-
-.card_correo::before {
-    content: "✉️";
-}
-
 
 /* =====================
    UBICACIONES / CHIPS
@@ -467,7 +452,8 @@
     color: #024D25;
     padding: 4px 8px;
     border-radius: 12px;
-    font-size: 11px;
+    font-size: 12px;
+    letter-spacing: .3px;
     font-weight: 500;
     transition: background-color .2s ease, color .2s ease;
 }
@@ -480,10 +466,6 @@
 /* =====================
    ANIMACIONES
 ===================== */
-.beneficio-card {
-    animation: fadeUp 0.35s ease both;
-}
-
 @keyframes fadeUp {
     from {
         opacity: 0;
@@ -516,10 +498,8 @@
 }
 
 /* =====================
-   ANIMACIONES
+   RESPONSIVE
 ===================== */
-
-
 @media (max-width: 600px) {
     .beneficios-container {
         padding: 12px;
@@ -537,4 +517,198 @@
     .banner-overlay h1 {
         font-size: 22px;
     }
+
+    /* ajustes adicionales para móvil */
+    .top-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pais-selector {
+        width: 100%;
+        /* ocupa todo el ancho en móvil */
+    }
+
+    .pilares-container {
+        width: 100%;
+    }
+}
+
+/* =====================
+   SECCIONES INTERNAS
+===================== */
+.card-section {
+    /* margin-top: 15px; */
+}
+
+.card-section h4 {
+    font-size: 14px;
+    margin: 8px 0 4px;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.card-section ul {
+    margin: 6px 0 10px;
+    padding-left: 16px;
+}
+
+.card-section li {
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #444;
+    line-height: 1.4;
+}
+
+/* =====================
+   CONTACTO CLICKABLE
+===================== */
+.contacto a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.contacto a:hover {
+    /* color: var(--primary-light); */
+    color: white;
+}
+
+.contacto i {
+    width: 16px;
+    text-align: center;
+}
+
+/* Expandible */
+.extra-content {
+    display: none;
+    /* margin-top: 10px;*/
+}
+
+/* Botón */
+.ver-mas-btn {
+    margin: 10px 0;
+    font-size: 13px;
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ver-mas-btn::after {
+    content: "▾";
+    font-size: 12px;
+    transition: transform .2s;
+}
+
+.beneficio-card.expanded .ver-mas-btn::after {
+    transform: rotate(180deg);
+}
+
+.ver-mas-btn:hover {
+    text-decoration: underline;
+}
+
+.beneficio-card.expanded .extra-content {
+    display: block;
+    animation: fadeIn .25s ease;
+}
+
+.form-help {
+    display: block;
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+}
+
+.chip-link {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef6f0;
+    border-radius: 50%;
+    color: var(--primary);
+    text-decoration: none;
+    transition: .2s;
+}
+
+.chip-link:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+/* Descripción completa */
+.descripcion-full {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.preview-list {
+    /* margin: 8px 0 10px; */
+    padding-left: 16px;
+}
+
+.preview-list li {
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.chip-more {
+    background: #024D25;
+    color: #fff;
+    cursor: pointer;
+}
+
+.card_paises.expanded .chip {
+    display: inline-flex;
+}
+
+.ubicaciones-btn {
+    margin-top: 8px;
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.ubicaciones-btn:hover {
+    text-decoration: underline;
+}
+
+.ubicaciones-extra {
+    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.chips-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.chips-more {
+    font-size: 12px;
+    color: #777;
+    margin-left: 6px;
+}
+
+.ubicaciones-wrapper {
+    margin: 8px 0 10px;
 }

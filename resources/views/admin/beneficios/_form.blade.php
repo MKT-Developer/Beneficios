@@ -37,12 +37,43 @@
     @error('descripcion') <span class="text-danger">{{ $message }}</span> @enderror
 </div>
 
+{{-- Beneficios --}}
+<div class="form-group">
+    <label for="beneficios">
+        Beneficios
+    </label>
+
+    <textarea
+        id="beneficios"
+        name="beneficios"
+        placeholder="Ejemplo:
+• 20% en productos
+• 10% en consultas
+• Examen gratis">{{ old('beneficios', $beneficio->beneficios ?? '') }}</textarea>
+
+    <small class="form-help">
+        Usa viñetas (•) para separar cada beneficio.
+    </small>
+
+    @error('beneficios')
+    <span class="text-danger">{{ $message }}</span>
+    @enderror
+</div>
+
 {{-- Condiciones --}}
 <div class="form-group">
     <label for="condiciones">Condiciones</label>
+
     <textarea
         id="condiciones"
-        name="condiciones">{{ old('condiciones', $beneficio->condiciones ?? '') }}</textarea>
+        name="condiciones"
+        placeholder="Ejemplo:
+• Presentar credencial vigente
+• No acumulable con otras promociones">{{ old('condiciones', $beneficio->condiciones ?? '') }}</textarea>
+
+    <small class="form-help">
+        Agrega restricciones o términos del beneficio.
+    </small>
 </div>
 
 {{-- Logo --}}

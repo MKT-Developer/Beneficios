@@ -67,7 +67,10 @@
                     <span>Ubicaciones</span>
                 </a>
 
-                <a href="javascript:void(0)" class="nav-item disabled" data-tooltip="Widget">
+                <!-- <a href="javascript:void(0)" class="nav-item disabled" data-tooltip="Widget"> -->
+                <a href="{{ route('admin.widget.index') }}"
+                    class="nav-item {{ request()->routeIs('admin.widget.*') ? 'active' : '' }}"
+                    data-tooltip="Widget">
                     <i class="fas fa-puzzle-piece"></i>
                     <span>Widget</span>
                 </a>
