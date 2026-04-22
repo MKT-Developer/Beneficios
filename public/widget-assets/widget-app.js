@@ -1,13 +1,13 @@
 let pais = new URLSearchParams(window.location.search).get('pais') || 'mx';
 // PRODUCCION
-// const API_BASE = 'https://beneficios.meracorporation.com/api';
-// const BASE = 'https://beneficios.meracorporation.com';
-// const STORAGE = 'https://beneficios.meracorporation.com/storage';
+const API_BASE = 'https://beneficios.meracorporation.com/api';
+const BASE = 'https://beneficios.meracorporation.com';
+const STORAGE = 'https://beneficios.meracorporation.com/storage';
 
 // LOCAL
-const API_BASE = 'http://127.0.0.1:8000/api';
-const BASE = 'http://127.0.0.1:8000/';
-const STORAGE = 'http://127.0.0.1:8000/storage';
+// const API_BASE = 'http://127.0.0.1:8000/api';
+// const BASE = 'http://127.0.0.1:8000/';
+// const STORAGE = 'http://127.0.0.1:8000/storage';
 
 const pilaresContainer = document.getElementById('pilares');
 const beneficiosContainer = document.getElementById('beneficios');
