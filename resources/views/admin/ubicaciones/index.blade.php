@@ -3,59 +3,128 @@
 @section('title', 'Ubicaciones')
 
 @section('content')
-<div class="container">
+
+<div class="admin-page">
+
     <div class="header-actions">
-        <h1>Ubicaciones</h1>
-        <a href="{{ route('admin.ubicaciones.create') }}" class="btn btn-primary">+ Nueva ubicación</a>
+        <h2 class="text-xl font-bold">Ubicaciones</h2>
+        <a href="{{ route('admin.ubicaciones.create') }}" class="btn btn-primary">
+            + Nueva ubicación
+        </a>
     </div>
 
+    {{-- TOASTS --}}
     @if(session('success'))
-    <div class="alert-success">{{ session('success') }}</div>
+    <div data-toast="success" data-message="{{ session('success') }}"></div>
     @endif
+
     @if(session('error'))
-    <div class="alert-danger">{{ session('error') }}</div>
+    <div data-toast="error" data-message="{{ session('error') }}"></div>
+    @endif
+
+    @if ($errors->any())
+    @foreach ($errors->all() as $error)
+    <div data-toast="error" data-message="{{ $error }}"></div>
+    @endforeach
     @endif
 
     <div class="card">
         <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nombre</th>
-                        <th>Activo</th>
-                        <th>Beneficios</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($ubicaciones as $ubicacion)
-                    <tr>
-                        <td>{{ $ubicacion->id }}</td>
-                        <td>{{ $ubicacion->nombre }}</td>
-                        <td class="text-center">
-                            <span class="badge" style="background-color: {{ $ubicacion->activo ? '#10b981' : '#f87171' }}; color:#fff;">
-                                {{ $ubicacion->activo ? 'Activo' : 'Inactivo' }}
-                            </span>
-                        </td>
-                        <td class="text-center">{{ $ubicacion->beneficios_count }}</td>
-                        <td class="text-center">
-                            <a href="{{ route('admin.ubicaciones.edit', $ubicacion) }}" class="btn btn-sm btn-warning">Editar</a>
-                            <form action="{{ route('admin.ubicaciones.destroy', $ubicacion) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('¿Eliminar esta ubicación?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">No hay ubicaciones registradas</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+
+            <div class="table-wrapper">
+
+                <table class="table table-ubicaciones">
+
+                    <thead>
+                        <tr>
+                            <th>Ubicación</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Beneficios</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @forelse($ubicaciones as $ubicacion)
+                        <tr>
+                            <td>
+                                <div class="beneficio-title">
+                                    {{ $ubicacion->nombre }}
+                                </div>
+
+                                <div class="beneficio-meta hide-mobile">
+                                    ID: {{ $ubicacion->id }}
+                                </div>
+                            </td>
+
+                            <td class="text-center">
+                                <span class="badge {{ $pais->activo ? 'badge-success' : 'badge-danger' }}>
+                                    {{ $ubicacion->activo ? 'Activo' : 'Inactivo' }}
+                                </span>
+                            </td>
+
+                            <td class="text-center hide-mobile">
+                                {{ $ubicacion->beneficios_count }}
+                            </td>
+
+                            <td class="td-actions text-center">
+
+                                <a href="{{ route('admin.ubicaciones.edit', $ubicacion) }}"
+                                    class="btn btn-sm btn-warning"
+                                    title="Editar">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+
+                                <form
+                                    action="{{ route('admin.ubicaciones.destroy', $ubicacion) }}"
+                                    method="POST"
+                                    onsubmit="event.preventDefault(); openDeleteModal(this, 'ubicación')">
+                                    <!-- onsubmit="event.preventDefault(); openDeleteModal(this, 'ubicación')"> -->
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <!-- <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button> -->
+                                    <button class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+
+                                </form>
+
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="empty-state">
+
+                                <div class="empty-state-content">
+
+                                    <i class="fas fa-map-marker-alt empty-icon"></i>
+
+                                    <p>No hay ubicaciones registradas</p>
+
+                                    <a href="{{ route('admin.ubicaciones.create') }}"
+                                        class="btn btn-sm btn-primary">
+                                        Crear primera ubicación
+                                    </a>
+
+                                </div>
+
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+
+                </table>
+
+            </div>
         </div>
     </div>
+
 </div>
+
 @endsection

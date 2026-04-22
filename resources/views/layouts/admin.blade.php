@@ -132,18 +132,26 @@
     </div>
 
     <div id="toast-container"></div>
+
     <div id="deleteModal" class="modal hidden">
         <div class="modal-content">
-            <h3>Eliminar país</h3>
-            <p>¿Estás seguro de que deseas eliminar este país?</p>
+
+            <h3 id="deleteModalTitle">Eliminar registro</h3>
+
+            <p id="deleteModalText">
+                ¿Estás seguro de que deseas eliminar este registro?
+            </p>
 
             <div class="modal-actions">
-                <button id="cancelDelete" class="btn btn-secondary">Cancelar</button>
+                <button id="cancelDelete" class="btn btn-secondary">
+                    Cancelar
+                </button>
 
                 <button id="confirmDelete" class="btn btn-danger">
                     Eliminar
                 </button>
             </div>
+
         </div>
     </div>
 

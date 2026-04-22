@@ -1715,4 +1715,10 @@ textarea {
     .hide-mobile {
         display: none !important;
     }
+
+    .table-ubicaciones td:first-child {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
 }

@@ -111,7 +111,7 @@
 
                             <form action="{{ route('admin.pilares.destroy', $pilar) }}"
                                 method="POST"
-                                onsubmit="event.preventDefault(); openDeleteModal(this);">
+                                onsubmit="event.preventDefault(); openDeleteModal(this, 'pilar')">
                                 @csrf
                                 @method('DELETE')
 

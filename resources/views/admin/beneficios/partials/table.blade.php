@@ -86,7 +86,7 @@
 
         <form action="{{ route('admin.beneficios.destroy', $beneficio) }}"
             method="POST"
-            onsubmit="event.preventDefault(); openDeleteModal(this);">
+            onsubmit="event.preventDefault(); openDeleteModal(this, 'beneficio')">
             @csrf
             @method('DELETE')
 

@@ -375,12 +375,33 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =========================
        DELETE MODAL (FIXED)
     ========================= */
-
     let deleteForm = null;
+    let deleteLabel = "registro";
 
-    window.openDeleteModal = function (form) {
+    window.openDeleteModal = function (form, label = "registro") {
+
         deleteForm = form;
-        document.getElementById("deleteModal")?.classList.remove("hidden");
+        deleteLabel = label;
+
+        form.dataset.modalActive = "true";
+
+        const modal = document.getElementById("deleteModal");
+
+        const title = document.getElementById("deleteModalTitle");
+        const text = document.getElementById("deleteModalText");
+
+        if (title) title.textContent = `Eliminar ${label}`;
+        // if (text) text.textContent = `¿Estás seguro de que deseas eliminar este registro de tipo ${label}?`;
+        if (text) text.textContent = `¿Estás seguro de que deseas eliminar este elemento?`;
+        
+
+            modal?.classList.remove("hidden");
+    };
+
+    window.closeDeleteModal = function () {
+        if (deleteForm) {
+            deleteForm.dataset.modalActive = "false";
+        }
     };
 
     const modal = document.getElementById("deleteModal");
@@ -407,13 +428,15 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmBtn.addEventListener("click", () => {
             if (!deleteForm) return;
 
-            const btn = deleteForm.querySelector("button");
+            const btn = deleteForm.querySelector("button[type='submit']");
+
             if (btn) {
                 btn.classList.add("btn-loading");
                 btn.disabled = true;
             }
 
-            window.showToast("Eliminando...", "info");
+            modal?.classList.add("hidden");
+
             deleteForm.submit();
         });
     }
@@ -421,11 +444,12 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =========================
        GLOBAL FORM LOADER (SAFE)
     ========================= */
-
     document.addEventListener("submit", (e) => {
         const form = e.target;
 
-        // evita interferencia con modal cancelado o acciones JS
+        // 🚨 evitar doble loader si viene del modal delete
+        if (form.dataset.modalActive === "true") return;
+
         if (form.dataset.noLoader === "true") return;
 
         const btn = form.querySelector("button");

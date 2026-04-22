@@ -77,7 +77,7 @@
 
                             <form action="{{ route('admin.pais.destroy', $pais) }}"
                                 method="POST"
-                                onsubmit="event.preventDefault(); openDeleteModal(this);">
+                                onsubmit="event.preventDefault(); openDeleteModal(this, 'país')">
                                 @csrf
                                 @method('DELETE')
 
