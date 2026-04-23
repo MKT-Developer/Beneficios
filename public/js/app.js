@@ -196,8 +196,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =========================
-   SIDEBAR (PRO VERSION)
-========================= */
+       SIDEBAR (PRO VERSION)
+    ========================= */
 
     const toggle = document.getElementById("sidebarToggle");
     const sidebar = document.getElementById("sidebar");
@@ -502,8 +502,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* =========================
-    FILTROS
-========================= */
+        FILTROS
+    ========================= */
 
     let timeout = null;
     let sortableInstance = null;
@@ -776,7 +776,6 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =========================
         MODAL CLOSE OUTSIDE
     ========================= */
-
     document.getElementById('beneficio-modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'beneficio-modal') closeModal();
     });
@@ -792,34 +791,53 @@ document.addEventListener("DOMContentLoaded", () => {
        VALIDACIÓN GLOBAL REUTILIZABLE
     ========================= */
     const errorCache = new WeakMap();
+    const touched = new WeakMap();
 
     const validators = {
         text: (input) => {
             const value = input.value.trim();
             const min = +input.dataset.min || 0;
+            // const min = input.dataset.min ? +input.dataset.min : 0;
+            // const max = input.dataset.max ? +input.dataset.max : Infinity;
             const max = +input.dataset.max || Infinity;
             const required = input.dataset.required === "1";
 
             if (required && !value) return input.dataset.message || "Requerido";
-            if (value.length < min) return input.dataset.message;
-            if (value.length > max) return input.dataset.message;
+
+            if (value.length < min) {
+                return input.dataset.message || `Mínimo ${min} caracteres`;
+            }
+
+            if (value.length > max) {
+                return input.dataset.message || `Máximo ${max} caracteres`;
+            }
 
             return true;
         },
 
         regex: (input) => {
             const value = input.value.trim();
-            const pattern = new RegExp(input.dataset.pattern);
+            const required = input.dataset.required === "1";
 
-            if (!pattern.test(value)) {
-                return input.dataset.message;
+            if (!value) {
+                return required ? (input.dataset.message || "Requerido") : true;
             }
 
-            return true;
+            const pattern = new RegExp(input.dataset.pattern);
+
+            return pattern.test(value)
+                ? true
+                : input.dataset.message;
         },
 
         email: (input) => {
             const value = input.value.trim();
+            const required = input.dataset.required === "1";
+
+            if (!value) {
+                return required ? (input.dataset.message || "Requerido") : true;
+            }
+
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
                 ? true
                 : input.dataset.message;
@@ -827,7 +845,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         file: (input) => {
             const file = input.files?.[0];
-            if (!file) return true;
+            const required = input.dataset.required === "1";
+
+            if (!file) {
+                return required ? input.dataset.message || "Archivo requerido" : true;
+            }
 
             const maxSize = +input.dataset.maxSize;
             const types = (input.dataset.types || "").split(",");
@@ -838,6 +860,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (types.length && !types.includes(file.type)) {
                 return input.dataset.message;
+            }
+
+            return true;
+        },
+
+        select: (input) => {
+            const value = input.value;
+            const required = input.dataset.required === "1";
+
+            if (!value && !required) {
+                return true; // no marcar nada
+            }
+
+            if (required && !value) {
+                return input.dataset.message || "Selecciona una opción";
+            }
+
+            return true;
+        },
+
+        number: (input) => {
+            const value = input.value.trim();
+            const required = input.dataset.required === "1";
+
+            if (!value) {
+                return required ? input.dataset.message || "Requerido" : true;
+            }
+
+            if (!/^\d+$/.test(value)) {
+                return input.dataset.message || "Debe ser un número válido";
+            }
+
+            const num = Number(value);
+            const min = input.min ? Number(input.min) : null;
+            const max = input.max ? Number(input.max) : null;
+
+            if (min !== null && num < min) {
+                return input.dataset.message || `Mínimo ${min}`;
+            }
+
+            if (max !== null && num > max) {
+                return input.dataset.message || `Máximo ${max}`;
             }
 
             return true;
@@ -853,11 +917,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = validator(input);
         const valid = result === true;
 
-        input.classList.toggle("input-valid", valid);
-        input.classList.toggle("input-invalid", !valid);
+        const isTouched = touched.get(input);
 
-        if (!valid) setFieldError(input, result);
-        else clearFieldError(input);
+        // 👇 solo aplicar estilos si ya fue tocado
+        if (isTouched) {
+            input.classList.toggle("input-valid", valid);
+            input.classList.toggle("input-invalid", !valid);
+
+            if (!valid) setFieldError(input, result);
+            else clearFieldError(input);
+        }
 
         return valid;
     }
@@ -867,11 +936,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!input.matches("[data-validate]")) return;
 
-        // evita revalidar mientras escribe demasiado rápido
+        // Solo valida si ya fue tocado
+        if (!touched.get(input)) return;
+
         requestAnimationFrame(() => {
             validateInput(input);
         });
     });
+
+    document.addEventListener("blur", (e) => {
+        const input = e.target;
+
+        if (!input.matches("[data-validate]")) return;
+
+        touched.set(input, true);
+
+        validateInput(input);
+
+    }, true);
 
     function setFieldError(input, message) {
 
@@ -912,6 +994,8 @@ document.addEventListener("DOMContentLoaded", () => {
         let firstError = null;
 
         inputs.forEach(input => {
+
+            touched.set(input, true); // Fuerza validación visual
 
             const ok = validateInput(input);
 

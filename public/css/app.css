@@ -386,7 +386,11 @@ textarea {
 
 .image-preview img {
     max-width: 120px;
-    border-radius: 8px;
+    object-fit: contain;
+}
+
+.logo_beneficio img {
+    border-radius: 10px;
     border: 1px solid #000000;
     background-color: black;
     padding: 10px;
@@ -469,10 +473,10 @@ input[type="file"] {
 }
 
 /* preview más elegante (reusa tu clase existente) */
-.image-preview img {
+/* .image-preview img {
     max-height: 50px;
     object-fit: contain;
-}
+} */
 
 /* feedback visual sutil */
 input:focus:valid {

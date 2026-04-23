@@ -81,7 +81,7 @@
     <label for="logo">Logo del beneficio</label>
 
     @if(!empty($beneficio->logo))
-    <div class="image-preview">
+    <div class="image-preview logo_beneficio">
         <img src="{{ asset('storage/beneficios/' . $beneficio->logo) }}" alt="Logo del beneficio">
     </div>
     @endif
