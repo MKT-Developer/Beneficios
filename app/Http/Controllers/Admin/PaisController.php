@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Pais;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -15,6 +15,7 @@ class PaisController extends Controller
     public function index()
     {
         $paises = Pais::orderBy('nombre')->get();
+
         return view('admin.pais.index', compact('paises'));
     }
 
@@ -25,18 +26,22 @@ class PaisController extends Controller
 
     public function store(Request $request)
     {
-        $data = $this->validateCreate($request);
-
         try {
-            $data['flag'] = $this->handleFlagUpload($request, null, $data['nombre']);
+
+            $data = $this->validateData($request);
+
+            $data['flag'] = $this->handleFlagUpload(
+                $request,
+                null,
+                $data['nombre']
+            );
 
             Pais::create($data);
 
             return redirect()
                 ->route('admin.pais.index')
                 ->with('success', 'País creado correctamente');
-        } catch (\Throwable $e) {
-            report($e);
+        } catch (Throwable $e) {
 
             return back()
                 ->withInput()
@@ -51,18 +56,22 @@ class PaisController extends Controller
 
     public function update(Request $request, Pais $pais)
     {
-        $data = $this->validateUpdate($request, $pais);
-
         try {
-            $data['flag'] = $this->handleFlagUpload($request, $pais->flag, $data['nombre']);
+
+            $data = $this->validateData($request, $pais);
+
+            $data['flag'] = $this->handleFlagUpload(
+                $request,
+                $pais->flag,
+                $data['nombre']
+            );
 
             $pais->update($data);
 
             return redirect()
                 ->route('admin.pais.index')
                 ->with('success', 'País actualizado correctamente');
-        } catch (\Throwable $e) {
-            report($e);
+        } catch (Throwable $e) {
 
             return back()
                 ->withInput()
@@ -85,18 +94,19 @@ class PaisController extends Controller
                 ->with('success', 'País eliminado correctamente');
         } catch (Throwable $e) {
 
-            return redirect()
-                ->back()
+            return back()
                 ->with('error', 'No se pudo eliminar el país.');
         }
     }
 
     /**
-     * VALIDACIÓN + NORMALIZACIÓN
+     * VALIDACIÓN UNIFICADA
      */
-    private function validateCreate(Request $request)
+    private function validateData(Request $request, Pais $pais = null)
     {
-        $validated = $request->validate([
+        $paisId = $pais->id ?? 'NULL';
+
+        return $request->validate([
             'nombre' => [
                 'required',
                 'string',
@@ -111,7 +121,7 @@ class PaisController extends Controller
                 'min:2',
                 'max:5',
                 'regex:/^[a-z]{2,5}$/',
-                'unique:paises,codigo'
+                Rule::unique('paises', 'codigo')->ignore($paisId)
             ],
 
             'flag' => [
@@ -126,54 +136,10 @@ class PaisController extends Controller
                 'boolean'
             ],
         ]);
-
-        $validated['codigo'] = strtolower($validated['codigo']);
-        $validated['activo'] = $request->has('activo');
-
-        return $validated;
-    }
-
-    private function validateUpdate(Request $request, Pais $pais)
-    {
-        $validated = $request->validate([
-            'nombre' => [
-                'required',
-                'string',
-                'min:3',
-                'max:255',
-                'regex:/^[\pL\s\-]+$/u'
-            ],
-
-            'codigo' => [
-                'required',
-                'string',
-                'min:2',
-                'max:5',
-                'regex:/^[a-z]{2,5}$/',
-                Rule::unique('paises', 'codigo')->ignore($pais->id)
-            ],
-
-            'flag' => [
-                'nullable',
-                'file',
-                'mimes:jpg,jpeg,png,webp',
-                'max:2048'
-            ],
-
-            'activo' => [
-                'nullable',
-                'boolean'
-            ],
-        ]);
-
-        $validated['codigo'] = strtolower($validated['codigo']);
-        $validated['activo'] = $request->has('activo');
-
-        return $validated;
     }
 
     /**
-     * UPLOAD DE BANDERA (CREAR / UPDATE)
+     * UPLOAD ESTANDARIZADO
      */
     private function handleFlagUpload(Request $request, ?string $oldFile = null, ?string $nombre = null)
     {
@@ -185,38 +151,15 @@ class PaisController extends Controller
 
         $filename = Str::slug($nombre ?? 'pais')
             . '-' . time()
-            . '.' . $file->getClientOriginalExtension();
+            . '.'
+            . $file->getClientOriginalExtension();
 
         $file->storeAs('flags', $filename, 'public');
 
-        // borrar anterior si existe
         if ($oldFile) {
             Storage::disk('public')->delete('flags/' . $oldFile);
         }
 
         return $filename;
-    }
-
-    /**
-     * TOGGLE ACTIVO (AJAX)
-     */
-    public function toggleActivo(Pais $pais)
-    {
-        try {
-            $pais->activo = !$pais->activo;
-            $pais->save();
-
-            return response()->json([
-                'success' => true,
-                'activo' => $pais->activo,
-                'message' => 'Estado actualizado correctamente'
-            ]);
-        } catch (Throwable $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar estado'
-            ], 500);
-        }
     }
 }

@@ -3,24 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ubicacion;
 use Illuminate\Http\Request;
-use App\Models\Ubicacion;   // ✅ Aquí importas el modelo correctamente
-
+use Throwable;
 
 class UbicacionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * LISTADO
      */
     public function index()
     {
-        // $ubicaciones = Ubicacion::orderBy('nombre')->get();
-        $ubicaciones = Ubicacion::withCount('beneficios')->orderBy('id')->get();
+        $ubicaciones = Ubicacion::withCount('beneficios')
+            ->orderBy('id')
+            ->get();
+
         return view('admin.ubicaciones.index', compact('ubicaciones'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * CREATE
      */
     public function create()
     {
@@ -28,33 +30,29 @@ class UbicacionController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * STORE
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'nombre' => 'required|string|max:255|unique:ubicaciones,nombre',
-            'activo' => 'boolean',
-        ]);
+        try {
 
-        $data['activo'] = $request->has('activo') ? 1 : 0;
+            $data = $this->validateData($request);
 
-        Ubicacion::create($data);
+            Ubicacion::create($data);
 
-        return redirect()->route('admin.ubicaciones.index')
-            ->with('success', 'Ubicación creada correctamente');
+            return redirect()
+                ->route('admin.ubicaciones.index')
+                ->with('success', 'Ubicación creada correctamente');
+        } catch (Throwable $e) {
+
+            return back()
+                ->withInput()
+                ->with('error', 'No se pudo crear la ubicación');
+        }
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * EDIT
      */
     public function edit(Ubicacion $ubicacion)
     {
@@ -62,36 +60,59 @@ class UbicacionController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * UPDATE
      */
     public function update(Request $request, Ubicacion $ubicacion)
     {
-        $data = $request->validate([
-            'nombre' => "required|string|max:255|unique:ubicaciones,nombre,{$ubicacion->id}",
-            'activo' => 'boolean',
-        ]);
+        try {
 
-        $data['activo'] = $request->has('activo') ? 1 : 0;
+            $data = $this->validateData($request, $ubicacion);
 
-        $ubicacion->update($data);
+            $ubicacion->update($data);
 
-        return redirect()->route('admin.ubicaciones.index')
-            ->with('success', 'Ubicación actualizada correctamente');
+            return redirect()
+                ->route('admin.ubicaciones.index')
+                ->with('success', 'Ubicación actualizada correctamente');
+        } catch (Throwable $e) {
+
+            return back()
+                ->withInput()
+                ->with('error', 'No se pudo actualizar la ubicación');
+        }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * DELETE
      */
     public function destroy(Ubicacion $ubicacion)
     {
-        // Opcional: evitar borrar si tiene beneficios asociados
-        if ($ubicacion->beneficios()->count() > 0) {
-            return back()->with('error', 'No se puede eliminar esta ubicación porque tiene beneficios asociados');
+        try {
+
+            if ($ubicacion->beneficios()->count() > 0) {
+                return back()->with('error', 'No se puede eliminar esta ubicación porque tiene beneficios asociados');
+            }
+
+            $ubicacion->delete();
+
+            return redirect()
+                ->route('admin.ubicaciones.index')
+                ->with('success', 'Ubicación eliminada correctamente');
+        } catch (Throwable $e) {
+
+            return back()->with('error', 'No se pudo eliminar la ubicación');
         }
+    }
 
-        $ubicacion->delete();
+    /**
+     * VALIDACIÓN CENTRALIZADA
+     */
+    private function validateData(Request $request, Ubicacion $ubicacion = null)
+    {
+        $ubicacionId = $ubicacion->id ?? 'NULL';
 
-        return redirect()->route('admin.ubicaciones.index')
-            ->with('success', 'Ubicación eliminada correctamente');
+        return $request->validate([
+            'nombre' => "required|string|max:255|unique:ubicaciones,nombre,$ubicacionId,id",
+            'activo' => 'boolean',
+        ]);
     }
 }
