@@ -3,8 +3,16 @@
 {{-- Pilar --}}
 <div class="form-group">
     <label for="pilar_id">Pilar *</label>
-    <select id="pilar_id" name="pilar_id" required>
+
+    <select
+        id="pilar_id"
+        name="pilar_id"
+        data-validate="select"
+        data-required="1"
+        data-message="Selecciona un pilar">
+
         <option value="">Selecciona un pilar</option>
+
         @foreach($pilares as $pilar)
         <option value="{{ $pilar->id }}"
             {{ old('pilar_id', $beneficio->pilar_id ?? '') == $pilar->id ? 'selected' : '' }}>
@@ -12,52 +20,59 @@
         </option>
         @endforeach
     </select>
-    @error('pilar_id') <span class="text-danger">{{ $message }}</span> @enderror
+
+    @error('pilar_id')
+    <span class="form-error">{{ $message }}</span>
+    @enderror
 </div>
 
 {{-- Nombre --}}
 <div class="form-group">
     <label for="nombre">Nombre *</label>
+
     <input
         type="text"
         id="nombre"
         name="nombre"
         value="{{ old('nombre', $beneficio->nombre ?? '') }}"
-        required>
-    @error('nombre') <span class="text-danger">{{ $message }}</span> @enderror
+        data-validate="text"
+        data-required="1"
+        data-max="255"
+        data-message="El nombre es obligatorio">
+
+    @error('nombre')
+    <span class="form-error">{{ $message }}</span>
+    @enderror
 </div>
 
 {{-- Descripción --}}
 <div class="form-group">
     <label for="descripcion">Descripción *</label>
+
     <textarea
         id="descripcion"
         name="descripcion"
-        required>{{ old('descripcion', $beneficio->descripcion ?? '') }}</textarea>
-    @error('descripcion') <span class="text-danger">{{ $message }}</span> @enderror
+        data-validate="text"
+        data-required="1"
+        data-message="La descripción es obligatoria">{{ old('descripcion', $beneficio->descripcion ?? '') }}</textarea>
+
+    @error('descripcion')
+    <span class="form-error">{{ $message }}</span>
+    @enderror
 </div>
 
 {{-- Beneficios --}}
 <div class="form-group">
-    <label for="beneficios">
-        Beneficios
-    </label>
+    <label for="beneficios">Beneficios</label>
 
     <textarea
         id="beneficios"
         name="beneficios"
-        placeholder="Ejemplo:
-• 20% en productos
-• 10% en consultas
+        placeholder="• 20% descuento
+• 10% consulta
 • Examen gratis">{{ old('beneficios', $beneficio->beneficios ?? '') }}</textarea>
 
-    <small class="form-help">
-        Usa viñetas (•) para separar cada beneficio.
-    </small>
-
-    @error('beneficios')
-    <span class="text-danger">{{ $message }}</span>
-    @enderror
+    <small class="form-help">Usa viñetas (•) para separar cada beneficio.</small>
 </div>
 
 {{-- Condiciones --}}
@@ -67,22 +82,17 @@
     <textarea
         id="condiciones"
         name="condiciones"
-        placeholder="Ejemplo:
-• Presentar credencial vigente
-• No acumulable con otras promociones">{{ old('condiciones', $beneficio->condiciones ?? '') }}</textarea>
-
-    <small class="form-help">
-        Agrega restricciones o términos del beneficio.
-    </small>
+        placeholder="• Credencial vigente
+• No acumulable">{{ old('condiciones', $beneficio->condiciones ?? '') }}</textarea>
 </div>
 
 {{-- Logo --}}
 <div class="form-group">
-    <label for="logo">Logo del beneficio</label>
+    <label for="logo">Logo</label>
 
     @if(!empty($beneficio->logo))
     <div class="image-preview logo_beneficio">
-        <img src="{{ asset('storage/beneficios/' . $beneficio->logo) }}" alt="Logo del beneficio">
+        <img src="{{ asset('storage/beneficios/' . $beneficio->logo) }}" alt="Logo">
     </div>
     @endif
 
@@ -90,22 +100,27 @@
         type="file"
         id="logo"
         name="logo"
-        accept="image/*">
+        data-validate="file"
+        data-max-size="2097152"
+        data-types="image/jpeg,image/png,image/webp,image/svg+xml"
+        data-message="Formato inválido o archivo muy grande">
 
     @error('logo')
-    <span class="text-danger">{{ $message }}</span>
+    <span class="form-error">{{ $message }}</span>
     @enderror
 </div>
 
 {{-- Orden --}}
 <div class="form-group">
     <label for="orden">Orden</label>
+
     <input
         type="number"
         id="orden"
         name="orden"
-        class="input-order"
-        value="{{ old('orden', $beneficio->orden ?? 0) }}">
+        value="{{ old('orden', $beneficio->orden ?? 0) }}"
+        data-validate="number"
+        data-message="Debe ser un número válido">
 </div>
 
 {{-- Activo --}}
@@ -126,37 +141,25 @@
 
 <div class="form-group">
     <label for="redsocial">Red social</label>
-    <input
-        type="text"
-        id="redsocial"
-        name="redsocial"
+    <input type="text" id="redsocial" name="redsocial"
         value="{{ old('redsocial', $beneficio->redsocial ?? '') }}">
 </div>
 
 <div class="form-group">
     <label for="sitio">Sitio web</label>
-    <input
-        type="url"
-        id="sitio"
-        name="sitio"
+    <input type="url" id="sitio" name="sitio"
         value="{{ old('sitio', $beneficio->sitio ?? '') }}">
 </div>
 
 <div class="form-group">
     <label for="telefono">Teléfono</label>
-    <input
-        type="text"
-        id="telefono"
-        name="telefono"
+    <input type="text" id="telefono" name="telefono"
         value="{{ old('telefono', $beneficio->telefono ?? '') }}">
 </div>
 
 <div class="form-group">
     <label for="correo">Correo</label>
-    <input
-        type="email"
-        id="correo"
-        name="correo"
+    <input type="email" id="correo" name="correo"
         value="{{ old('correo', $beneficio->correo ?? '') }}">
 </div>
 

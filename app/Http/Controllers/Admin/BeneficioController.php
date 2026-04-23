@@ -7,11 +7,14 @@ use App\Models\Beneficio;
 use App\Models\Pilar;
 use App\Models\Ubicacion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class BeneficioController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * LISTADO
      */
     public function index(Request $request)
     {
@@ -33,7 +36,6 @@ class BeneficioController extends Controller
 
         $beneficios = $query->orderBy('orden')->get();
 
-        // IMPORTANTE
         if ($request->ajax()) {
             return response()->json([
                 'html' => view('admin.beneficios.partials.table', compact('beneficios'))->render(),
@@ -44,56 +46,53 @@ class BeneficioController extends Controller
         return view('admin.beneficios.index', [
             'beneficios' => $beneficios,
             'paises' => \App\Models\Pais::all(),
-            'pilares' => \App\Models\Pilar::all()
+            'pilares' => Pilar::all()
         ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * CREATE
      */
     public function create()
     {
-        $beneficio = new Beneficio();
-
         $pilares = Pilar::with('pais')->orderBy('nombre')->get();
         $ubicaciones = Ubicacion::orderBy('nombre')->get();
 
-        return view('admin.beneficios.create', compact('beneficio', 'pilares', 'ubicaciones'));
+        return view('admin.beneficios.create', compact('pilares', 'ubicaciones'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * STORE
      */
     public function store(Request $request)
     {
-        $data = $this->validateData($request);
-
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-
-            $filename = \Str::slug($request->nombre) . '-' . time() . '.' . $file->getClientOriginalExtension();
-
-            // Guardar en storage/app/public/beneficios
-            $file->storeAs('beneficios', $filename, 'public');
-
-            // Solo el nombre en la BD
-            $data['logo'] = $filename;
-        }
-
         try {
-            $beneficio = Beneficio::create($data);
-            $beneficio->ubicaciones()->sync($data['ubicaciones'] ?? []);
 
-            return redirect()->route('admin.beneficios.index')
+            $data = $this->validateData($request);
+
+            $data['logo'] = $this->handleLogoUpload(
+                $request,
+                null,
+                $data['nombre']
+            );
+
+            Beneficio::create($data)
+                ->ubicaciones()
+                ->sync($data['ubicaciones'] ?? []);
+
+            return redirect()
+                ->route('admin.beneficios.index')
                 ->with('success', 'Beneficio creado correctamente');
-        } catch (\Exception $e) {
-            return back()->withInput()
+        } catch (Throwable $e) {
+
+            return back()
+                ->withInput()
                 ->with('error', 'Ocurrió un error al crear el beneficio');
         }
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * EDIT
      */
     public function edit(Beneficio $beneficio)
     {
@@ -106,59 +105,91 @@ class BeneficioController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * UPDATE
      */
     public function update(Request $request, Beneficio $beneficio)
     {
-        $data = $this->validateData($request, $beneficio);
-
-        if ($request->hasFile('logo')) {
-
-            // borrar logo anterior
-            if ($beneficio->logo && \Storage::disk('public')->exists('beneficios/' . $beneficio->logo)) {
-                \Storage::disk('public')->delete('beneficios/' . $beneficio->logo);
-            }
-
-            $file = $request->file('logo');
-
-            $filename = \Str::slug($request->nombre) . '-' . time() . '.' . $file->getClientOriginalExtension();
-
-            $file->storeAs('beneficios', $filename, 'public');
-
-            $data['logo'] = $filename;
-        }
-
         try {
+
+            $data = $this->validateData($request, $beneficio);
+
+            $data['logo'] = $this->handleLogoUpload(
+                $request,
+                $beneficio->logo,
+                $data['nombre']
+            );
+
             $beneficio->update($data);
             $beneficio->ubicaciones()->sync($data['ubicaciones'] ?? []);
 
-            return redirect()->route('admin.beneficios.index')
+            return redirect()
+                ->route('admin.beneficios.index')
                 ->with('success', 'Beneficio actualizado correctamente');
-        } catch (\Exception $e) {
-            return back()->withInput()
+        } catch (Throwable $e) {
+
+            return back()
+                ->withInput()
                 ->with('error', 'Ocurrió un error al actualizar el beneficio');
         }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * DELETE
      */
     public function destroy(Beneficio $beneficio)
     {
         try {
+
+            if ($beneficio->logo) {
+                Storage::disk('public')->delete('beneficios/' . $beneficio->logo);
+            }
+
             $beneficio->delete();
 
-            return redirect()->route('admin.beneficios.index')
+            return redirect()
+                ->route('admin.beneficios.index')
                 ->with('success', 'Beneficio eliminado correctamente');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Ocurrió un error al eliminar el beneficio');
+        } catch (Throwable $e) {
+
+            return back()
+                ->with('error', 'Ocurrió un error al eliminar el beneficio');
         }
     }
 
     /**
-     * Validar datos comunes de store/update.
+     * SHOW (modal)
      */
-    protected function validateData(Request $request, Beneficio $beneficio = null)
+    public function show(Beneficio $beneficio)
+    {
+        $beneficio->load(['pilar.pais', 'ubicaciones']);
+
+        return response()->json([
+            'id' => $beneficio->id,
+            'nombre' => $beneficio->nombre,
+            'logo' => $beneficio->logo,
+
+            'pilar' => $beneficio->pilar?->nombre,
+            'pais' => $beneficio->pilar?->pais?->nombre,
+
+            'descripcion' => $beneficio->descripcion,
+            'beneficios' => $beneficio->beneficios,
+            'condiciones' => $beneficio->condiciones,
+
+            'correo' => $beneficio->correo,
+            'telefono' => $beneficio->telefono,
+            'sitio' => $beneficio->sitio,
+            'redsocial' => $beneficio->redsocial,
+
+            'ubicaciones' => $beneficio->ubicaciones->pluck('nombre'),
+            'activo' => $beneficio->activo,
+            'orden' => $beneficio->orden,
+        ]);
+    }
+
+    /**
+     * VALIDACIÓN CENTRALIZADA
+     */
+    private function validateData(Request $request, Beneficio $beneficio = null)
     {
         $beneficioId = $beneficio->id ?? 'NULL';
 
@@ -166,7 +197,7 @@ class BeneficioController extends Controller
             'pilar_id'      => 'required|exists:pilares,id',
             'nombre'        => "required|string|max:255|unique:beneficios,nombre,$beneficioId,id",
             'descripcion'   => 'required|string',
-            'beneficios'   => 'nullable|string',
+            'beneficios'    => 'nullable|string',
             'condiciones'   => 'nullable|string',
             'redsocial'     => 'nullable|string|max:255',
             'sitio'         => 'nullable|url|max:255',
@@ -179,51 +210,34 @@ class BeneficioController extends Controller
             'ubicaciones.*' => 'exists:ubicaciones,id',
         ]);
 
-        // Garantizar que 'activo' siempre tenga valor 0 o 1
         $data['activo'] = $request->input('activo', 0);
-
-        // Orden mínimo 0
         $data['orden'] = $data['orden'] ?? 0;
 
         return $data;
     }
 
     /**
-     * Mostrar los datos en el modal.
+     * UPLOAD ESTANDARIZADO (igual que pilares)
      */
-    public function show(Beneficio $beneficio)
+    private function handleLogoUpload(Request $request, ?string $oldFile = null, ?string $nombre = null)
     {
-        $beneficio->load(['pilar.pais', 'ubicaciones']);
+        if (!$request->hasFile('logo')) {
+            return $oldFile;
+        }
 
-        return response()->json([
-            'id' => $beneficio->id,
-            'nombre' => $beneficio->nombre,
-            'logo' => $beneficio->logo,
+        $file = $request->file('logo');
 
-            // GENERAL
-            'pilar' => $beneficio->pilar?->nombre,
-            'pais' => $beneficio->pilar?->pais?->nombre,
+        $filename = Str::slug($nombre ?? 'beneficio')
+            . '-' . time()
+            . '.'
+            . $file->getClientOriginalExtension();
 
-            // DETALLE
-            'descripcion' => $beneficio->descripcion,
-            'beneficios' => $beneficio->beneficios,
-            'condiciones' => $beneficio->condiciones,
+        $file->storeAs('beneficios', $filename, 'public');
 
-            // CONTACTO
-            'correo' => $beneficio->correo,
-            'telefono' => $beneficio->telefono,
-            'sitio' => $beneficio->sitio,
-            'redsocial' => $beneficio->redsocial,
+        if ($oldFile) {
+            Storage::disk('public')->delete('beneficios/' . $oldFile);
+        }
 
-            // OPERATIVO
-            'ubicaciones' => $beneficio->ubicaciones->pluck('nombre'),
-            // 'ubicaciones' => $beneficio->ubicaciones
-            //     ->pluck('nombre')
-            //     ->take(5)
-            //     ->implode(', ') ?: 'Sin ubicaciones',
-
-            'activo' => $beneficio->activo,
-            'orden' => $beneficio->orden,
-        ]);
+        return $filename;
     }
 }
