@@ -8,6 +8,7 @@ use App\Models\Pais;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
+use Illuminate\Validation\Rule;
 
 class PaisController extends Controller
 {
@@ -24,10 +25,9 @@ class PaisController extends Controller
 
     public function store(Request $request)
     {
+        $data = $this->validateCreate($request);
+
         try {
-
-            $data = $this->validateData($request);
-
             $data['flag'] = $this->handleFlagUpload($request, null, $data['nombre']);
 
             Pais::create($data);
@@ -35,12 +35,12 @@ class PaisController extends Controller
             return redirect()
                 ->route('admin.pais.index')
                 ->with('success', 'País creado correctamente');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
+            report($e);
 
-            return redirect()
-                ->back()
+            return back()
                 ->withInput()
-                ->with('error', 'No se pudo crear el país. Intenta nuevamente.');
+                ->with('error', 'No se pudo crear el país.');
         }
     }
 
@@ -51,10 +51,9 @@ class PaisController extends Controller
 
     public function update(Request $request, Pais $pais)
     {
+        $data = $this->validateUpdate($request, $pais);
+
         try {
-
-            $data = $this->validateData($request);
-
             $data['flag'] = $this->handleFlagUpload($request, $pais->flag, $data['nombre']);
 
             $pais->update($data);
@@ -62,10 +61,10 @@ class PaisController extends Controller
             return redirect()
                 ->route('admin.pais.index')
                 ->with('success', 'País actualizado correctamente');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
+            report($e);
 
-            return redirect()
-                ->back()
+            return back()
                 ->withInput()
                 ->with('error', 'No se pudo actualizar el país.');
         }
@@ -95,15 +94,79 @@ class PaisController extends Controller
     /**
      * VALIDACIÓN + NORMALIZACIÓN
      */
-    private function validateData(Request $request)
+    private function validateCreate(Request $request)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'codigo' => 'required|string|max:10',
-            'flag'   => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
-            'activo' => 'nullable|boolean',
+            'nombre' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[\pL\s\-]+$/u'
+            ],
+
+            'codigo' => [
+                'required',
+                'string',
+                'min:2',
+                'max:5',
+                'regex:/^[a-z]{2,5}$/',
+                'unique:paises,codigo'
+            ],
+
+            'flag' => [
+                'nullable',
+                'file',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048'
+            ],
+
+            'activo' => [
+                'nullable',
+                'boolean'
+            ],
         ]);
 
+        $validated['codigo'] = strtolower($validated['codigo']);
+        $validated['activo'] = $request->has('activo');
+
+        return $validated;
+    }
+
+    private function validateUpdate(Request $request, Pais $pais)
+    {
+        $validated = $request->validate([
+            'nombre' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[\pL\s\-]+$/u'
+            ],
+
+            'codigo' => [
+                'required',
+                'string',
+                'min:2',
+                'max:5',
+                'regex:/^[a-z]{2,5}$/',
+                Rule::unique('paises', 'codigo')->ignore($pais->id)
+            ],
+
+            'flag' => [
+                'nullable',
+                'file',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048'
+            ],
+
+            'activo' => [
+                'nullable',
+                'boolean'
+            ],
+        ]);
+
+        $validated['codigo'] = strtolower($validated['codigo']);
         $validated['activo'] = $request->has('activo');
 
         return $validated;

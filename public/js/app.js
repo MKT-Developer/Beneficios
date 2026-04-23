@@ -444,21 +444,21 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =========================
        GLOBAL FORM LOADER (SAFE)
     ========================= */
-    document.addEventListener("submit", (e) => {
-        const form = e.target;
+    // document.addEventListener("submit", (e) => {
+    //     const form = e.target;
 
-        // 🚨 evitar doble loader si viene del modal delete
-        if (form.dataset.modalActive === "true") return;
+    //     // 🚨 evitar doble loader si viene del modal delete
+    //     if (form.dataset.modalActive === "true") return;
 
-        if (form.dataset.noLoader === "true") return;
+    //     if (form.dataset.noLoader === "true") return;
 
-        const btn = form.querySelector("button");
+    //     const btn = form.querySelector("button");
 
-        if (btn) {
-            btn.classList.add("btn-loading");
-            btn.disabled = true;
-        }
-    });
+    //     if (btn) {
+    //         btn.classList.add("btn-loading");
+    //         btn.disabled = true;
+    //     }
+    // });
 
     /* =========================
        TOGGLE PAIS
@@ -787,4 +787,167 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.previewBeneficio = previewBeneficio;
     window.closeModal = closeModal;
+
+    /* =========================
+       VALIDACIÓN GLOBAL REUTILIZABLE
+    ========================= */
+    const errorCache = new WeakMap();
+
+    const validators = {
+        text: (input) => {
+            const value = input.value.trim();
+            const min = +input.dataset.min || 0;
+            const max = +input.dataset.max || Infinity;
+            const required = input.dataset.required === "1";
+
+            if (required && !value) return input.dataset.message || "Requerido";
+            if (value.length < min) return input.dataset.message;
+            if (value.length > max) return input.dataset.message;
+
+            return true;
+        },
+
+        regex: (input) => {
+            const value = input.value.trim();
+            const pattern = new RegExp(input.dataset.pattern);
+
+            if (!pattern.test(value)) {
+                return input.dataset.message;
+            }
+
+            return true;
+        },
+
+        email: (input) => {
+            const value = input.value.trim();
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                ? true
+                : input.dataset.message;
+        },
+
+        file: (input) => {
+            const file = input.files?.[0];
+            if (!file) return true;
+
+            const maxSize = +input.dataset.maxSize;
+            const types = (input.dataset.types || "").split(",");
+
+            if (maxSize && file.size > maxSize) {
+                return input.dataset.message;
+            }
+
+            if (types.length && !types.includes(file.type)) {
+                return input.dataset.message;
+            }
+
+            return true;
+        }
+    };
+
+    function validateInput(input) {
+        const type = input.dataset.validate;
+        const validator = validators[type];
+
+        if (!validator) return true;
+
+        const result = validator(input);
+        const valid = result === true;
+
+        input.classList.toggle("input-valid", valid);
+        input.classList.toggle("input-invalid", !valid);
+
+        if (!valid) setFieldError(input, result);
+        else clearFieldError(input);
+
+        return valid;
+    }
+
+    document.addEventListener("input", (e) => {
+        const input = e.target;
+
+        if (!input.matches("[data-validate]")) return;
+
+        // evita revalidar mientras escribe demasiado rápido
+        requestAnimationFrame(() => {
+            validateInput(input);
+        });
+    });
+
+    function setFieldError(input, message) {
+
+        let msg = errorCache.get(input);
+
+        input.classList.add("shake");
+        setTimeout(() => input.classList.remove("shake"), 300);
+
+        if (!msg) {
+            msg = document.createElement("small");
+            msg.className = "field-error";
+            input.parentElement.appendChild(msg);
+            errorCache.set(input, msg);
+        }
+
+        msg.textContent = message;
+    }
+
+    function clearFieldError(input) {
+
+        const msg = errorCache.get(input);
+
+        if (msg) {
+            msg.textContent = "";
+        }
+    }
+
+    /* =========================
+       GLOBAL FORM LOADER (SAFE)
+    ========================= */
+    document.addEventListener("submit", (e) => {
+
+        const form = e.target;
+
+        const inputs = form.querySelectorAll("[data-validate]");
+
+        let isValid = true;
+        let firstError = null;
+
+        inputs.forEach(input => {
+
+            const ok = validateInput(input);
+
+            if (!ok && !firstError) {
+                firstError = input;
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+
+            if (firstError) {
+                firstError.focus();
+                firstError.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+                firstError.classList.add("shake");
+                setTimeout(() => firstError.classList.remove("shake"), 300);
+            }
+
+            showToast("Revisa los campos antes de guardar", "error");
+            return;
+        }
+
+        requestAnimationFrame(() => {
+            const btn = form.querySelector("button[type='submit']");
+
+            if (btn) {
+                btn.classList.add("btn-loading");
+                btn.disabled = true;
+            }
+
+            showLoader();
+        });
+    });
 });
