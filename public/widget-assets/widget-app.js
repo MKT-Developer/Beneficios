@@ -214,7 +214,7 @@ function renderBeneficio(b) {
 
                 ${b.telefono ? `
                     <a href="tel:${b.telefono.replace(/\s/g, '')}">
-                        <i class="fas fa-phone"></i>
+                        <i class="fab fa-whatsapp"></i>
                     </a>
                 ` : ''}
 
