@@ -1,16 +1,19 @@
 @extends('layouts.admin')
 
-@section('title', 'Ubicaciones')
+@section('title', 'Usuarios')
 
 @section('content')
 
 <div class="admin-page">
 
     <div class="header-actions">
-        <h2 class="text-xl font-bold">Ubicaciones</h2>
-        <a href="{{ route('admin.ubicaciones.create') }}" class="btn btn-primary">
-            + Nueva ubicación
+        <h2 class="text-xl font-bold">Usuarios</h2>
+
+        @if(auth()->user()->canManageUsers())
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+            + Nuevo usuario
         </a>
+        @endif
     </div>
 
     {{-- TOASTS --}}
@@ -33,91 +36,107 @@
 
             <div class="table-wrapper">
 
-                <table class="table table-ubicaciones">
+                <table class="table table-users">
 
                     <thead>
                         <tr>
-                            <th>Ubicación</th>
-                            <th class="text-center">Estado</th>
-                            <th class="text-center">Beneficios</th>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th class="text-center">Rol</th>
+                            <th class="text-center hide-mobile">Creado</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @forelse($ubicaciones as $ubicacion)
+                        @forelse($users as $user)
                         <tr>
+
+                            {{-- USUARIO --}}
                             <td>
                                 <div class="beneficio-title">
-                                    {{ $ubicacion->nombre }}
+                                    {{ $user->name }}
                                 </div>
 
                                 <div class="beneficio-meta hide-mobile">
-                                    ID: {{ $ubicacion->id }}
+                                    ID: {{ $user->id }}
                                 </div>
                             </td>
 
+                            {{-- EMAIL --}}
+                            <td>
+                                {{ $user->email }}
+                            </td>
+
+                            {{-- ROL --}}
                             <td class="text-center">
-                                <span class="badge {{ $ubicacion->activo ? 'badge-success' : 'badge-danger' }}">
-                                    {{ $ubicacion->activo ? 'Activo' : 'Inactivo' }}
+                                @php
+                                $roleClass = match($user->role) {
+                                'superadmin' => 'badge-danger',
+                                'admin' => 'badge-warning',
+                                'editor' => 'badge-secondary',
+                                default => 'badge-secondary'
+                                };
+                                @endphp
+
+                                <span class="badge {{ $roleClass }}">
+                                    {{ ucfirst($user->role) }}
                                 </span>
                             </td>
 
+                            {{-- FECHA --}}
                             <td class="text-center hide-mobile">
-                                {{ $ubicacion->beneficios_count }}
+                                {{ $user->created_at?->format('d/m/Y') }}
                             </td>
 
+                            {{-- ACCIONES --}}
                             <td class="td-actions text-center">
 
-                                @if(auth()->user()->canEdit())
-                                <a href="{{ route('admin.ubicaciones.edit', $ubicacion) }}"
+                                {{-- EDITAR --}}
+                                @if(!$user->isLocked() && auth()->user()->canManageUsers())
+                                <a href="{{ route('admin.users.edit', $user) }}"
                                     class="btn btn-sm btn-warning"
                                     title="Editar">
                                     <i class="fas fa-pen"></i>
                                 </a>
                                 @endif
 
-                                @if(auth()->user()->canDelete())
+                                {{-- ELIMINAR --}}
+                                @if(!$user->isLocked() && auth()->user()->canDelete())
                                 <form
-                                    action="{{ route('admin.ubicaciones.destroy', $ubicacion) }}"
+                                    action="{{ route('admin.users.destroy', $user) }}"
                                     method="POST"
-                                    onsubmit="event.preventDefault(); openDeleteModal(this, 'ubicación')">
-                                    <!-- onsubmit="event.preventDefault(); openDeleteModal(this, 'ubicación')"> -->
+                                    onsubmit="event.preventDefault(); openDeleteModal(this, 'usuario')">
 
                                     @csrf
                                     @method('DELETE')
 
-                                    <!-- <button type="submit"
-                                        class="btn btn-sm btn-danger"
-                                        title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button> -->
                                     <button class="btn btn-sm btn-danger">
                                         <i class="fas fa-trash"></i>
                                     </button>
-
                                 </form>
                                 @endif
 
                             </td>
+
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="empty-state">
-
+                            <td colspan="5" class="empty-state">
                                 <div class="empty-state-content">
 
-                                    <i class="fas fa-map-marker-alt empty-icon"></i>
+                                    <i class="fas fa-users empty-icon"></i>
 
-                                    <p>No hay ubicaciones registradas</p>
+                                    <p>No hay usuarios registrados</p>
 
-                                    <a href="{{ route('admin.ubicaciones.create') }}"
+                                    @if(auth()->user()->canManageUsers())
+                                    <a href="{{ route('admin.users.create') }}"
                                         class="btn btn-sm btn-primary">
-                                        Crear primera ubicación
+                                        Crear primer usuario
                                     </a>
+                                    @endif
 
                                 </div>
-
                             </td>
                         </tr>
                         @endforelse

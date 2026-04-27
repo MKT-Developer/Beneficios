@@ -22,12 +22,20 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-            // return redirect()->intended('/dashboard');
-            return auth()->user()->isAdmin()
-                ? redirect('/admin')
-                : redirect('/dashboard');
-        }
 
+            $user = auth()->user();
+
+            if ($user->isSuperAdmin() || $user->isAdmin()) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($user->isEditor()) {
+                return redirect()->route('admin.dashboard'); // o vista editor futura
+            }
+
+            Auth::logout();
+            return redirect('/login');
+        }
         return back()->withErrors([
             'email' => 'Credenciales incorrectas.'
         ]);

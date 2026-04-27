@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\PilarController;
 use App\Http\Controllers\Admin\BeneficioController;
 use App\Http\Controllers\Admin\UbicacionController;
 
+use App\Http\Controllers\Admin\UserController;
+
 use App\Http\Controllers\Admin\ToggleController;
 
 use App\Http\Controllers\WidgetController;
@@ -163,6 +165,8 @@ Route::middleware(['auth', 'admin'])
         Route::get('widget', function () {
             return view('admin.widget.index');
         })->name('widget.index');
+
+        Route::resource('users', UserController::class);
     });
 
 /*

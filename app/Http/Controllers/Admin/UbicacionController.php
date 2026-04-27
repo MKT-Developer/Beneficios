@@ -88,6 +88,12 @@ class UbicacionController extends Controller
     {
         try {
 
+            /** @var \App\Models\User $authUser */
+            $authUser = auth()->user();
+            if (!$authUser->canDelete()) {
+                abort(403);
+            }
+
             if ($ubicacion->beneficios()->count() > 0) {
                 return back()->with('error', 'No se puede eliminar esta ubicación porque tiene beneficios asociados');
             }

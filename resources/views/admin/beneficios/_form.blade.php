@@ -15,7 +15,7 @@
 
         @foreach($pilares as $pilar)
         <option value="{{ $pilar->id }}"
-            {{ old('pilar_id', $beneficio->pilar_id ?? '') == $pilar->id ? 'selected' : '' }}>
+            {{ old('pilar_id', $beneficio->pilar_id) == $pilar->id ? 'selected' : '' }}>
             {{ $pilar->nombre }} — {{ $pilar->pais->nombre }}
         </option>
         @endforeach
@@ -34,7 +34,7 @@
         type="text"
         id="nombre"
         name="nombre"
-        value="{{ old('nombre', $beneficio->nombre ?? '') }}"
+        value="{{ old('nombre', $beneficio->nombre) }}"
         data-validate="text"
         data-required="1"
         data-max="255"
@@ -54,7 +54,7 @@
         name="descripcion"
         data-validate="text"
         data-required="1"
-        data-message="La descripción es obligatoria">{{ old('descripcion', $beneficio->descripcion ?? '') }}</textarea>
+        data-message="La descripción es obligatoria">{{ old('descripcion', $beneficio->descripcion) }}</textarea>
 
     @error('descripcion')
     <span class="form-error">{{ $message }}</span>
@@ -70,7 +70,7 @@
         name="beneficios"
         placeholder="• 20% descuento
 • 10% consulta
-• Examen gratis">{{ old('beneficios', $beneficio->beneficios ?? '') }}</textarea>
+• Examen gratis">{{ old('beneficios', $beneficio->beneficios) }}</textarea>
 
     <small class="form-help">Usa viñetas (•) para separar cada beneficio.</small>
 </div>
@@ -83,7 +83,7 @@
         id="condiciones"
         name="condiciones"
         placeholder="• Credencial vigente
-• No acumulable">{{ old('condiciones', $beneficio->condiciones ?? '') }}</textarea>
+• No acumulable">{{ old('condiciones', $beneficio->condiciones) }}</textarea>
 </div>
 
 {{-- Logo --}}
@@ -130,7 +130,7 @@
             type="checkbox"
             name="activo"
             value="1"
-            {{ old('activo', $beneficio->activo ?? true) ? 'checked' : '' }}>
+            {{ old('activo', $beneficio->activo ?? 1) ? 'checked' : '' }}>
         Activo
     </label>
 </div>
@@ -142,39 +142,39 @@
 <div class="form-group">
     <label for="redsocial">Red social</label>
     <input type="text" id="redsocial" name="redsocial"
-        value="{{ old('redsocial', $beneficio->redsocial ?? '') }}">
+        value="{{ old('redsocial', $beneficio->redsocial) }}">
 </div>
 
 <div class="form-group">
     <label for="sitio">Sitio web</label>
     <input type="url" id="sitio" name="sitio"
-        value="{{ old('sitio', $beneficio->sitio ?? '') }}">
+        value="{{ old('sitio', $beneficio->sitio) }}">
 </div>
 
 <div class="form-group">
     <label for="telefono">Teléfono</label>
     <input type="text" id="telefono" name="telefono"
-        value="{{ old('telefono', $beneficio->telefono ?? '') }}">
+        value="{{ old('telefono', $beneficio->telefono) }}">
 </div>
 
 <div class="form-group">
     <label for="correo">Correo</label>
     <input type="email" id="correo" name="correo"
-        value="{{ old('correo', $beneficio->correo ?? '') }}">
+        value="{{ old('correo', $beneficio->correo) }}">
 </div>
 
 <hr>
 
 {{-- Ubicaciones --}}
+@php
+$selectedUbicaciones = old(
+'ubicaciones',
+$beneficio->ubicaciones?->pluck('id')->all() ?? []
+);
+@endphp
+
 <div class="form-group">
     <label>Ubicaciones</label>
-
-    @php
-    $selectedUbicaciones = old(
-    'ubicaciones',
-    $beneficio->ubicaciones->pluck('id')->toArray() ?? []
-    );
-    @endphp
 
     <div class="form-row">
         @foreach($ubicaciones as $ubicacion)

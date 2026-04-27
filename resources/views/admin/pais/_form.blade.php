@@ -24,8 +24,8 @@
         name="codigo"
         value="{{ old('codigo') ?? ($pais->codigo ?? '') }}"
         data-validate="regex"
-        data-pattern="^[a-z]{2,5}$"
-        data-message="El código debe ser 2 a 5 letras minúsculas" />
+        data-pattern="^[a-zA-Z]{2,5}$"
+        data-message="El código debe ser 2 a 5" />
 
     <small class="form-help">Usa código ISO corto (ej: mx)</small>
 

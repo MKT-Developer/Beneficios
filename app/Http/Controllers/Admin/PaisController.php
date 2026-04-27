@@ -83,6 +83,12 @@ class PaisController extends Controller
     {
         try {
 
+            /** @var \App\Models\User $authUser */
+            $authUser = auth()->user();
+            if (!$authUser->canDelete()) {
+                abort(403);
+            }
+
             if ($pais->flag) {
                 Storage::disk('public')->delete('flags/' . $pais->flag);
             }
@@ -106,7 +112,7 @@ class PaisController extends Controller
     {
         $paisId = $pais->id ?? 'NULL';
 
-        return $request->validate([
+        $data = $request->validate([
             'nombre' => [
                 'required',
                 'string',
@@ -120,7 +126,7 @@ class PaisController extends Controller
                 'string',
                 'min:2',
                 'max:5',
-                'regex:/^[a-z]{2,5}$/',
+                'regex:/^[a-zA-Z]{2,5}$/',
                 Rule::unique('paises', 'codigo')->ignore($paisId)
             ],
 
@@ -130,12 +136,12 @@ class PaisController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048'
             ],
-
-            'activo' => [
-                'nullable',
-                'boolean'
-            ],
         ]);
+
+        $data['codigo'] = strtolower($data['codigo']);
+        $data['activo'] = $request->boolean('activo');
+
+        return $data;
     }
 
     /**
@@ -154,7 +160,10 @@ class PaisController extends Controller
             . '.'
             . $file->getClientOriginalExtension();
 
-        $file->storeAs('flags', $filename, 'public');
+        // 🔥 asegurar carpeta
+        Storage::disk('public')->makeDirectory('flags');
+
+        $path = $file->storeAs('flags', $filename, 'public');
 
         if ($oldFile) {
             Storage::disk('public')->delete('flags/' . $oldFile);
@@ -162,4 +171,27 @@ class PaisController extends Controller
 
         return $filename;
     }
+    // private function handleFlagUpload(Request $request, ?string $oldFile = null, ?string $nombre = null)
+    // {
+    //     if (!$request->hasFile('flag')) {
+    //         return $oldFile;
+    //     }
+
+    //     $file = $request->file('flag');
+
+    //     $filename = Str::slug($nombre ?? 'pais')
+    //         . '-' . time()
+    //         . '.'
+    //         . $file->getClientOriginalExtension();
+
+    //     $file->storeAs('flags', $filename, 'public');
+
+    //     if ($oldFile) {
+    //         Storage::disk('public')->delete('flags/' . $oldFile);
+    //     }
+
+    //     // dd($request->hasFile('flag'), $request->file('flag'));
+
+    //     return $filename;
+    // }
 }

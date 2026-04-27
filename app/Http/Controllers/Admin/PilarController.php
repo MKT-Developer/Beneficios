@@ -109,6 +109,12 @@ class PilarController extends Controller
     {
         try {
 
+            /** @var \App\Models\User $authUser */
+            $authUser = auth()->user();
+            if (!$authUser->canDelete()) {
+                abort(403);
+            }
+
             if ($pilar->icono) {
                 Storage::disk('public')->delete('pilares/' . $pilar->icono);
             }

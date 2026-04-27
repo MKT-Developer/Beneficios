@@ -104,11 +104,14 @@
                         {{-- Acciones --}}
                         <td data-label="Acciones" class="td-actions">
 
+                            @if(auth()->user()->canEdit())
                             <a href="{{ route('admin.pilares.edit', $pilar) }}"
                                 class="btn btn-sm btn-warning">
                                 <i class="fas fa-pen"></i>
                             </a>
+                            @endif
 
+                            @if(auth()->user()->canDelete())
                             <form action="{{ route('admin.pilares.destroy', $pilar) }}"
                                 method="POST"
                                 onsubmit="event.preventDefault(); openDeleteModal(this, 'pilar')">
@@ -119,6 +122,7 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
+                            @endif
 
                         </td>
 

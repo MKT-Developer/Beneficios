@@ -55,10 +55,16 @@ class BeneficioController extends Controller
      */
     public function create()
     {
+        $beneficio = new Beneficio();
+
         $pilares = Pilar::with('pais')->orderBy('nombre')->get();
         $ubicaciones = Ubicacion::orderBy('nombre')->get();
 
-        return view('admin.beneficios.create', compact('pilares', 'ubicaciones'));
+        return view('admin.beneficios.create', compact(
+            'beneficio',
+            'pilares',
+            'ubicaciones'
+        ));
     }
 
     /**
@@ -139,6 +145,12 @@ class BeneficioController extends Controller
     public function destroy(Beneficio $beneficio)
     {
         try {
+
+            /** @var \App\Models\User $authUser */
+            $authUser = auth()->user();
+            if (!$authUser->canDelete()) {
+                abort(403);
+            }
 
             if ($beneficio->logo) {
                 Storage::disk('public')->delete('beneficios/' . $beneficio->logo);

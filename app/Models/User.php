@@ -2,66 +2,118 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-// Utilizar nuestro propio diseño de correo
-// use App\Notifications\ResetPasswordNotification;
-
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    const ROLE_SUPERADMIN = 'superadmin';
     const ROLE_ADMIN = 'admin';
-    const ROLE_USER = 'user';
+    const ROLE_EDITOR = 'editor';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
     ];
-    // protected $fillable = [
-    //     'name',
-    //     'email',
-    //     'password',
-    // ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
-    public function isAdmin()
+    /*
+    |-------------------------------------------------
+    | ROLES BASE
+    |-------------------------------------------------
+    */
+    public function isSuperAdmin(): bool
     {
-        return $this->role === self::ROLE_ADMIN;
+        return $this->role === self::ROLE_SUPERADMIN;
     }
 
-    // public function sendPasswordResetNotification($token)
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN || $this->isSuperAdmin();
+    }
+
+    public function isEditor(): bool
+    {
+        return $this->role === self::ROLE_EDITOR;
+    }
+
+    /*
+    |-------------------------------------------------
+    | ACCESO AL PANEL
+    |-------------------------------------------------
+    */
+    public function canAccessAdmin(): bool
+    {
+        return true; // ya lo filtras con middleware
+    }
+
+    /*
+    |-------------------------------------------------
+    | GESTIÓN DE USUARIOS
+    |-------------------------------------------------
+    */
+    public function canManageUsers(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /*
+    |-------------------------------------------------
+    | ELIMINACIÓN
+    |-------------------------------------------------
+    */
+
+    // public function canDeleteUsers(): bool
     // {
-    //     $this->notify(new ResetPasswordNotification($token));
+    //     return in_array($this->role, [
+    //         self::ROLE_SUPERADMIN,
+    //         self::ROLE_ADMIN
+    //     ]);
     // }
+
+    /*
+    |-------------------------------------------------
+    | PROTECCIÓN DE CUENTA
+    |-------------------------------------------------
+    */
+    public function isLocked(): bool
+    {
+        return $this->role === self::ROLE_SUPERADMIN
+            && $this->email === 'jesus.castro@meracorporation.com';
+    }
+
+    /*
+    |-------------------------------------------------
+    | USUARIO EDITOR NO PUEDE ELIMINAR
+    |-------------------------------------------------
+    */
+    public function canDelete(): bool
+    {
+        return $this->isAdmin();
+    }
+
+    /*
+    |-------------------------------------------------
+    | EDITOR NO PUEDE BORRAR NADA
+    |-------------------------------------------------
+    */
+    public function canEdit(): bool
+    {
+        return $this->isAdmin() || $this->isEditor();
+    }
 }

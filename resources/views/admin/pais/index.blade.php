@@ -71,10 +71,13 @@
                         </td>
 
                         <td data-label="Acciones" class="td-actions">
+                            @if(auth()->user()->canEdit())
                             <a href="{{ route('admin.pais.edit', $pais) }}" class="btn btn-sm btn-warning">
                                 <i class="fas fa-pen"></i>
                             </a>
+                            @endif
 
+                            @if(auth()->user()->canDelete())
                             <form action="{{ route('admin.pais.destroy', $pais) }}"
                                 method="POST"
                                 onsubmit="event.preventDefault(); openDeleteModal(this, 'país')">
@@ -85,6 +88,7 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
+                            @endif
                         </td>
 
                     </tr>

@@ -75,13 +75,24 @@
                     <span>Widget</span>
                 </a>
 
-                <a href="javascript:void(0)" class="nav-item disabled" data-tooltip="Usuarios">
+                @if(auth()->user()->canManageUsers())
+                <a href="{{ route('admin.users.index') }}"
+                    class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="fas fa-users"></i>
                     <span>Usuarios</span>
                 </a>
+                @endif
 
             </nav>
         </aside>
+
+        <!-- Proteger links dentro del sidebar (opcional fino) -->
+        <!-- @if(auth()->user()->isAdmin())
+        <a href="{{ route('admin.users.index') }}" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Usuarios</span>
+        </a>
+        @endif -->
 
         <!-- MAIN -->
         <main class="main-content">
@@ -201,72 +212,11 @@
 
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeModal()">Cerrar</button>
-                <a id="modal-edit" class="btn btn-sm btn-warning">Editar</a>
+                <a id="modal-edit" class="btn btn-warning">Editar</a>
             </div>
 
         </div>
     </div>
-
-    <!-- SCRIPTS
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-
-            /* =========================
-               SIDEBAR TOGGLE
-            ========================= */
-            const toggle = document.getElementById("sidebarToggle");
-            const sidebar = document.getElementById("sidebar");
-            const overlay = document.getElementById("sidebarOverlay");
-
-            if (toggle && sidebar) {
-                toggle.addEventListener("click", () => {
-
-                    if (window.innerWidth <= 768) {
-                        sidebar.classList.toggle("open");
-                        overlay.classList.toggle("active");
-                    } else {
-                        sidebar.classList.toggle("collapsed");
-                        localStorage.setItem("sidebar", sidebar.classList.contains("collapsed"));
-                    }
-                });
-            }
-
-            /* cerrar en mobile */
-            overlay?.addEventListener("click", () => {
-                sidebar.classList.remove("open");
-                overlay.classList.remove("active");
-            });
-
-            /* =========================
-               USER DROPDOWN
-            ========================= */
-            const dropdown = document.getElementById("userDropdown");
-
-            if (dropdown) {
-                dropdown.addEventListener("click", () => {
-                    dropdown.classList.toggle("active");
-                });
-
-                document.addEventListener("click", (e) => {
-                    if (!dropdown.contains(e.target)) {
-                        dropdown.classList.remove("active");
-                    }
-                });
-            }
-
-            /* =========================
-               PAGE TRANSITION
-            ========================= */
-            document.querySelectorAll(".nav-item").forEach(link => {
-                link.addEventListener("click", function() {
-                    if (!this.classList.contains("disabled")) {
-                        document.body.classList.add("loading");
-                    }
-                });
-            });
-
-        });
-    </script> -->
 
 </body>
 

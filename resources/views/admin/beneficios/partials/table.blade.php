@@ -79,11 +79,14 @@
             <i class="fas fa-eye"></i>
         </button>
 
+        @if(auth()->user()->canEdit())
         <a href="{{ route('admin.beneficios.edit', $beneficio) }}"
-            class="btn btn-sm btn-warning">
+            class="btn btn-warning">
             <i class="fas fa-pen"></i>
         </a>
+        @endif
 
+        @if(auth()->user()->canDelete())
         <form action="{{ route('admin.beneficios.destroy', $beneficio) }}"
             method="POST"
             onsubmit="event.preventDefault(); openDeleteModal(this, 'beneficio')">
@@ -94,6 +97,7 @@
                 <i class="fas fa-trash"></i>
             </button>
         </form>
+        @endif
 
     </td>
 
