@@ -17,7 +17,13 @@
 
         <div class="form-group">
             <label>Email</label>
-            <input type="email" name="email" id="email required autofocus class=" @error('email') error-input @enderror">
+            <input
+                type="email"
+                name="email"
+                id="email"
+                required
+                autofocus
+                class="@error('email') error-input @enderror">
         </div>
 
         <div class="form-group password-group">

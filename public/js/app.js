@@ -4,6 +4,22 @@ document.addEventListener("DOMContentLoaded", () => {
        PASSWORD TOGGLES
     ========================= */
 
+    window.togglePassword = function () {
+        const input = document.getElementById("password");
+        const open = document.getElementById("eyeOpen");
+        const closed = document.getElementById("eyeClosed");
+
+        if (!input) return;
+
+        const isHidden = input.type === "password";
+        input.type = isHidden ? "text" : "password";
+
+        if (open && closed) {
+            open.style.display = isHidden ? "block" : "none";
+            closed.style.display = isHidden ? "none" : "block";
+        }
+    };
+
     window.toggleRegisterPassword = function () {
         const input = document.getElementById("registerPassword");
         const open = document.getElementById("regEyeOpen");
