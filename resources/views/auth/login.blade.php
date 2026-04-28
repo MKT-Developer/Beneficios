@@ -51,7 +51,7 @@
             </label>
         </div>
 
-        <button class="btn btn-primary" id="loginBtn">Entrar</button>
+        <button class="btn btn-primary btn-login" id="loginBtn">Entrar</button>
 
         <p class="auth-link">
             <a href="{{ route('password.request') }}">

@@ -114,6 +114,10 @@ body.loading {
     border-radius: 15px;
 }
 
+.btn-login{
+    width: 100%;
+}
+
 .btn-primary {
     background: var(--color-primary);
     color: #fff;
